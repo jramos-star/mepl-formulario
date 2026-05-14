@@ -569,21 +569,46 @@ function volver() {
 }
 
 // ============================================================
-// API helpers
+// API helpers — usa JSONP para evitar CORS con Apps Script
 // ============================================================
-async function api(params) {
-  const url = new URL(API_URL);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString());
-  return res.json();
+function api(params) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "cb_" + Date.now();
+    const url = new URL(API_URL);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    url.searchParams.set("callback", callbackName);
+
+    const script = document.createElement("script");
+    script.src = url.toString();
+
+    window[callbackName] = function(data) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+
+    script.onerror = function() {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      reject(new Error("Error de conexión con el servidor"));
+    };
+
+    setTimeout(() => {
+      if (window[callbackName]) {
+        delete window[callbackName];
+        try { document.body.removeChild(script); } catch(e) {}
+        reject(new Error("Tiempo de espera agotado"));
+      }
+    }, 15000);
+
+    document.body.appendChild(script);
+  });
 }
 
 async function apiPost(body) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify(body)
-  });
-  return res.json();
+  // Para POST usamos GET con los datos serializados (Apps Script no soporta POST cross-origin)
+  const tareas = body.tareas;
+  return api({ accion: "guardar", datos: JSON.stringify(tareas) });
 }
 
 function esc(str) {
@@ -601,4 +626,5 @@ render();
 </script>
 </body>
 </html>
+
 
