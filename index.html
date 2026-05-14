@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEPL — Formulario de Respuestas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a3a5c;
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 600; }
+    header span { font-size: 0.85rem; opacity: 0.75; }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      color: #1a3a5c;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8edf2;
+    }
+
+    label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #fafbfc;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #1a3a5c;
+      background: white;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 22px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .btn-primary { background: #1a3a5c; color: white; }
+    .btn-primary:hover { background: #25527f; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-success { background: #1a7a4a; color: white; }
+    .btn-success:hover { background: #22a060; }
+    .btn-back { background: #e8edf2; color: #444; margin-right: 8px; }
+    .btn-back:hover { background: #d0d7de; }
+
+    .hoja-item {
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hoja-item:hover { border-color: #1a3a5c; background: #f0f5ff; }
+
+    .hoja-tipo { font-weight: 600; font-size: 0.95rem; color: #1a3a5c; }
+    .hoja-info { font-size: 0.8rem; color: #888; margin-top: 3px; }
+    .hoja-badge {
+      background: #e8edf2;
+      color: #555;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .tarea-card {
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .tarea-header {
+      background: #1a3a5c;
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tarea-header .clave { font-weight: 700; font-size: 0.9rem; }
+    .tarea-header .texto { font-size: 0.82rem; opacity: 0.85; }
+
+    .tarea-rutina {
+      background: #f8f9fa;
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.5;
+      border-bottom: 1px solid #e8edf2;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .tarea-respuesta { padding: 12px 16px; }
+    .tarea-respuesta label { font-weight: 600; color: #333; margin-bottom: 8px; }
+
+    .respuesta-opciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .opcion-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #d0d7de;
+      background: white;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .opcion-btn:hover { border-color: #1a3a5c; background: #f0f5ff; }
+    .opcion-btn.selected { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+    .opcion-btn.selected-na { background: #888; color: white; border-color: #888; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .loading::before {
+      content: "⏳ ";
+    }
+
+    .error-msg {
+      background: #fff0f0;
+      border: 1px solid #ffcccc;
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: #c00;
+      font-size: 0.88rem;
+      margin-bottom: 16px;
+    }
+
+    .success-msg {
+      background: #f0fff4;
+      border: 1px solid #b7ebc8;
+      border-radius: 6px;
+      padding: 20px;
+      color: #1a7a4a;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .success-msg h3 { font-size: 1.2rem; margin-bottom: 8px; }
+
+    .paso-indicator {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+
+    .paso {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #aaa;
+      padding: 6px;
+      border-bottom: 2px solid #e8edf2;
+    }
+
+    .paso.activo { color: #1a3a5c; border-bottom-color: #1a3a5c; font-weight: 600; }
+    .paso.completo { color: #1a7a4a; border-bottom-color: #1a7a4a; }
+
+    .firmante { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .firmante { grid-template-columns: 1fr; } }
+
+    .contador { font-size: 0.78rem; color: #888; float: right; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>MEPL — Formulario de Respuestas</h1>
+    <span>Indaltec SA</span>
+  </div>
+</header>
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURACION — reemplazar con la URL del Apps Script
+// ============================================================
+const API_URL = "PEGAR_URL_DEL_APPS_SCRIPT_ACA";
+
+// ============================================================
+// Estado de la app
+// ============================================================
+let estado = {
+  paso: 1,          // 1=colegio, 2=hoja, 3=tareas, 4=confirmacion
+  domicilio: "",
+  hojaSeleccionada: null,
+  tareas: [],
+  respuestas: {},   // { orden_clave: texto }
+  operario: "",
+  jefe: ""
+};
+
+// ============================================================
+// Render principal
+// ============================================================
+function render() {
+  const app = document.getElementById("app");
+
+  const pasos = ["Colegio", "Hoja", "Respuestas", "Confirmación"];
+  let html = `<div class="paso-indicator">`;
+  pasos.forEach((p, i) => {
+    const cls = i + 1 === estado.paso ? "activo" : i + 1 < estado.paso ? "completo" : "";
+    html += `<div class="paso ${cls}">${i + 1}. ${p}</div>`;
+  });
+  html += `</div>`;
+
+  app.innerHTML = html;
+
+  if (estado.paso === 1) renderColegios();
+  else if (estado.paso === 2) renderHojas();
+  else if (estado.paso === 3) renderTareas();
+  else if (estado.paso === 4) renderConfirmacion();
+}
+
+// ============================================================
+// PASO 1 — Elegir colegio
+// ============================================================
+async function renderColegios() {
+  const app = document.getElementById("app");
+  app.innerHTML += `
+    <div class="card">
+      <h2>Seleccioná tu colegio</h2>
+      <div id="contenido-colegios" class="loading">Cargando colegios...</div>
+    </div>`;
+
+  try {
+    const res = await api({ accion: "colegios" });
+    if (!res.ok) throw new Error(res.error);
+
+    let html = `<label>Domicilio del establecimiento</label>
+      <select id="sel-colegio" onchange="seleccionarColegio(this.value)">
+        <option value="">— Elegí un colegio —</option>`;
+    res.colegios.forEach(c => {
+      html += `<option value="${esc(c)}">${esc(c)}</option>`;
+    });
+    html += `</select>`;
+
+    document.getElementById("contenido-colegios").innerHTML = html;
+  } catch (e) {
+    document.getElementById("contenido-colegios").innerHTML =
+      `<div class="error-msg">Error al cargar colegios: ${e.message}</div>`;
+  }
+}
+
+function seleccionarColegio(domicilio) {
+  if (!domicilio) return;
+  estado.domicilio = domicilio;
+  estado.paso = 2;
+  render();
+}
+
+// ============================================================
+// PASO 2 — Elegir hoja
+// ============================================================
+async function renderHojas() {
+  const app = document.getElementById("app");
+  app.innerHTML += `
+    <div class="card">
+      <h2>${esc(estado.domicilio)}</h2>
+      <div id="contenido-hojas" class="loading">Cargando hojas...</div>
+    </div>`;
+
+  try {
+    const res = await api({ accion: "hojas", domicilio: estado.domicilio });
+    if (!res.ok) throw new Error(res.error);
+
+    let html = `<p style="font-size:0.85rem;color:#666;margin-bottom:14px;">
+      Seleccioná la hoja que vas a completar:</p>`;
+
+    if (res.hojas.length === 0) {
+      html += `<div class="error-msg">No hay hojas disponibles para este colegio.</div>`;
+    } else {
+      res.hojas.forEach(h => {
+        html += `
+          <div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
+            <div>
+              <div class="hoja-tipo">${esc(h.tipo)}</div>
+              <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
+            </div>
+            <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas !== 1 ? 's' : ''}</div>
+          </div>`;
+      });
+    }
+
+    html += `<br><button class="btn btn-back" onclick="volver()">← Cambiar colegio</button>`;
+    document.getElementById("contenido-hojas").innerHTML = html;
+  } catch (e) {
+    document.getElementById("contenido-hojas").innerHTML =
+      `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+async function seleccionarHoja(hoja) {
+  estado.hojaSeleccionada = hoja;
+  estado.paso = 3;
+  render();
+
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card" id="card-tareas">
+    <div class="loading">Cargando tareas...</div>
+  </div>`;
+
+  try {
+    const res = await api({ accion: "tareas", orden: hoja.ordenPpal });
+    if (!res.ok) throw new Error(res.error);
+
+    estado.tareas = res.tareas;
+    estado.respuestas = {};
+    renderFormularioTareas();
+  } catch (e) {
+    document.getElementById("card-tareas").innerHTML =
+      `<div class="error-msg">Error al cargar tareas: ${e.message}</div>`;
+  }
+}
+
+// ============================================================
+// PASO 3 — Completar tareas
+// ============================================================
+function renderFormularioTareas() {
+  const card = document.getElementById("card-tareas");
+
+  const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
+
+  let html = `<h2>${esc(estado.hojaSeleccionada.tipo)}</h2>`;
+
+  estado.tareas.forEach((t, idx) => {
+    const key = `${t.orden}_${t.clave}`;
+    html += `
+      <div class="tarea-card">
+        <div class="tarea-header">
+          <span class="clave">${esc(t.clave)}</span>
+          <span class="texto">${esc(t.texto)}</span>
+        </div>
+        <div class="tarea-rutina">${esc(t.descripcion)}</div>
+        <div class="tarea-respuesta">
+          <label>Respuesta <span class="contador">${idx + 1}/${estado.tareas.length}</span></label>
+          <div class="respuesta-opciones">
+            ${opciones.map(op => `
+              <button class="opcion-btn" onclick="elegirOpcion('${key}', '${op}', this)">${op}</button>
+            `).join("")}
+          </div>
+          <textarea id="txt_${key}" placeholder="Descripción de la tarea realizada (obligatorio)..."
+            onchange="actualizarRespuesta('${key}')"></textarea>
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="card" style="margin-top:8px;">
+      <h2>Datos del operario</h2>
+      <div class="firmante">
+        <div>
+          <label>Nombre del operario</label>
+          <input type="text" id="inp-operario" placeholder="Nombre y apellido"
+            oninput="estado.operario = this.value">
+        </div>
+        <div>
+          <label>Jefe de sitio</label>
+          <input type="text" id="inp-jefe" placeholder="Nombre y apellido"
+            oninput="estado.jefe = this.value">
+        </div>
+      </div>
+    </div>
+    <div id="error-envio"></div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-back" onclick="volver()">← Volver</button>
+      <button class="btn btn-success" onclick="enviarRespuestas()">Enviar respuestas ✓</button>
+    </div>`;
+
+  card.innerHTML = html;
+}
+
+function elegirOpcion(key, opcion, btn) {
+  // Deseleccionar otros botones del mismo grupo
+  btn.closest(".respuesta-opciones").querySelectorAll(".opcion-btn").forEach(b => {
+    b.classList.remove("selected", "selected-na");
+  });
+
+  const esNA = opcion === "No aplica" || opcion === "En obra";
+  btn.classList.add(esNA ? "selected-na" : "selected");
+
+  // Si es "No aplica" o "En obra", completar el textarea automáticamente
+  const txt = document.getElementById(`txt_${key}`);
+  if (esNA) {
+    txt.value = opcion.toLowerCase();
+    txt.style.opacity = "0.5";
+  } else {
+    if (txt.value === "no aplica" || txt.value === "en obra") txt.value = "";
+    txt.style.opacity = "1";
+  }
+
+  estado.respuestas[key] = { opcion, texto: txt.value };
+}
+
+function actualizarRespuesta(key) {
+  const txt = document.getElementById(`txt_${key}`).value;
+  if (!estado.respuestas[key]) estado.respuestas[key] = { opcion: "", texto: "" };
+  estado.respuestas[key].texto = txt;
+}
+
+// ============================================================
+// Enviar respuestas
+// ============================================================
+async function enviarRespuestas() {
+  const errorDiv = document.getElementById("error-envio");
+  errorDiv.innerHTML = "";
+
+  // Validar que todas las tareas tengan respuesta
+  const sinResponder = estado.tareas.filter(t => {
+    const key = `${t.orden}_${t.clave}`;
+    const r = estado.respuestas[key];
+    return !r || (!r.texto && !r.opcion);
+  });
+
+  if (sinResponder.length > 0) {
+    errorDiv.innerHTML = `<div class="error-msg">
+      Falta completar ${sinResponder.length} tarea(s): 
+      ${sinResponder.map(t => t.clave).join(", ")}
+    </div>`;
+    return;
+  }
+
+  if (!estado.operario.trim()) {
+    errorDiv.innerHTML = `<div class="error-msg">Ingresá el nombre del operario.</div>`;
+    return;
+  }
+
+  // Armar las tareas a guardar
+  // Cada tarea del MEPL_CLAVES es una fila en MEPL_RESPUESTAS
+  // Las respuestas de una hoja (mismo ordenPpal) se unen con || en la col E
+  // Agrupamos por MEIN (col A = orden individual de cada tarea)
+
+  const tareasPorMEIN = {};
+  estado.tareas.forEach(t => {
+    const key = `${t.orden}_${t.clave}`;
+    const r = estado.respuestas[key] || {};
+    const respTexto = r.texto || r.opcion || "no aplica";
+
+    if (!tareasPorMEIN[t.orden]) {
+      tareasPorMEIN[t.orden] = {
+        mein: t.orden,
+        ordenRef: estado.hojaSeleccionada.ordenPpal,
+        domicilio: estado.domicilio,
+        tipo: estado.hojaSeleccionada.tipo,
+        respuestas: []
+      };
+    }
+    tareasPorMEIN[t.orden].respuestas.push(respTexto);
+  });
+
+  // Convertir respuestas a formato || y armar array
+  const tareas = Object.values(tareasPorMEIN).map(m => ({
+    mein: m.mein,
+    ordenRef: m.ordenRef,
+    domicilio: m.domicilio,
+    tipo: m.tipo,
+    respuesta: m.respuestas.join("||"),
+    operario: estado.operario,
+    jefe: estado.jefe
+  }));
+
+  // Deshabilitar botón
+  const btn = document.querySelector(".btn-success");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  try {
+    const res = await apiPost({ tareas });
+    if (!res.ok) throw new Error(res.error);
+
+    estado.paso = 4;
+    render();
+  } catch (e) {
+    errorDiv.innerHTML = `<div class="error-msg">Error al enviar: ${e.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = "Enviar respuestas ✓";
+  }
+}
+
+// ============================================================
+// PASO 4 — Confirmación
+// ============================================================
+function renderConfirmacion() {
+  const app = document.getElementById("app");
+  app.innerHTML += `
+    <div class="card">
+      <div class="success-msg">
+        <h3>✅ Respuestas enviadas</h3>
+        <p>Las respuestas de <strong>${esc(estado.hojaSeleccionada.tipo)}</strong><br>
+        en <strong>${esc(estado.domicilio)}</strong><br>
+        fueron guardadas correctamente.</p>
+        <br>
+        <button class="btn btn-primary" onclick="reiniciar()">Completar otra hoja</button>
+      </div>
+    </div>`;
+}
+
+function reiniciar() {
+  estado = { paso: 1, domicilio: "", hojaSeleccionada: null,
+             tareas: [], respuestas: {}, operario: "", jefe: "" };
+  render();
+}
+
+function volver() {
+  estado.paso = Math.max(1, estado.paso - 1);
+  render();
+}
+
+// ============================================================
+// API helpers
+// ============================================================
+async function api(params) {
+  const url = new URL(API_URL);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  return res.json();
+}
+
+async function apiPost(body) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+function esc(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ============================================================
+// Arrancar
+// ============================================================
+render();
+</script>
+</body>
+</html>
