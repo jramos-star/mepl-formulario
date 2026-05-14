@@ -379,7 +379,19 @@ async function seleccionarHoja(hoja) {
 // PASO 3 — Completar tareas
 // ============================================================
 function renderFormularioTareas() {
-  const card = document.getElementById("card-tareas");
+  // Si no hay tareas cargadas todavía, no hacer nada
+  if (!estado.tareas || estado.tareas.length === 0) return;
+
+  // Crear card-tareas si no existe
+  let card = document.getElementById("card-tareas");
+  if (!card) {
+    const app = document.getElementById("app");
+    const div = document.createElement("div");
+    div.className = "card";
+    div.id = "card-tareas";
+    app.appendChild(div);
+    card = div;
+  }
 
   const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
 
