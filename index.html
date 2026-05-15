@@ -81,6 +81,7 @@
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-success { background: #1a7a4a; color: white; }
     .btn-success:hover { background: #22a060; }
+    .btn-success:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-back { background: #e8edf2; color: #444; margin-right: 8px; }
     .btn-back:hover { background: #d0d7de; }
 
@@ -95,11 +96,23 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .hoja-item:hover { border-color: #1a3a5c; background: #f0f5ff; }
+
+    /* Hoja bloqueada */
+    .hoja-item.realizada {
+      background: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+    .hoja-item.realizada:hover {
+      border-color: #d0d7de;
+      background: #f5f5f5;
+    }
+    .hoja-item.realizada .hoja-tipo { color: #888; }
 
     .hoja-tipo { font-weight: 600; font-size: 0.95rem; color: #1a3a5c; }
     .hoja-info { font-size: 0.8rem; color: #888; margin-top: 3px; }
+
     .hoja-badge {
       background: #e8edf2;
       color: #555;
@@ -107,6 +120,11 @@
       padding: 3px 10px;
       font-size: 0.78rem;
       white-space: nowrap;
+    }
+    .badge-realizada {
+      background: #d4edda;
+      color: #1a7a4a;
+      font-weight: 600;
     }
 
     .tarea-card {
@@ -124,7 +142,6 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .tarea-header .clave { font-weight: 700; font-size: 0.9rem; }
     .tarea-header .texto { font-size: 0.82rem; opacity: 0.85; }
 
@@ -156,21 +173,12 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-
     .opcion-btn:hover { border-color: #1a3a5c; background: #f0f5ff; }
     .opcion-btn.selected { background: #1a3a5c; color: white; border-color: #1a3a5c; }
     .opcion-btn.selected-na { background: #888; color: white; border-color: #888; }
 
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #888;
-      font-size: 0.9rem;
-    }
-
-    .loading::before {
-      content: "⏳ ";
-    }
+    .loading { text-align: center; padding: 40px; color: #888; font-size: 0.9rem; }
+    .loading::before { content: "⏳ "; }
 
     .error-msg {
       background: #fff0f0;
@@ -191,15 +199,9 @@
       font-size: 0.95rem;
       text-align: center;
     }
-
     .success-msg h3 { font-size: 1.2rem; margin-bottom: 8px; }
 
-    .paso-indicator {
-      display: flex;
-      gap: 0;
-      margin-bottom: 24px;
-    }
-
+    .paso-indicator { display: flex; margin-bottom: 24px; }
     .paso {
       flex: 1;
       text-align: center;
@@ -208,7 +210,6 @@
       padding: 6px;
       border-bottom: 2px solid #e8edf2;
     }
-
     .paso.activo { color: #1a3a5c; border-bottom-color: #1a3a5c; font-weight: 600; }
     .paso.completo { color: #1a7a4a; border-bottom-color: #1a7a4a; }
 
@@ -232,16 +233,9 @@
 </div>
 
 <script>
-// ============================================================
-// CONFIGURACION — solo Supabase, sin Apps Script
-// ============================================================
 const SUPABASE_URL = "https://zynvptlesftdpyijxvpv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_a5BtY5K2O8w2rPBlIeKRUg_u6z478MX";
 
-// ============================================================
-// API helpers — todo via Supabase REST
-// Funciona desde cualquier celular sin cuenta Google
-// ============================================================
 async function sbGet(tabla, params = {}) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/${tabla}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -262,49 +256,71 @@ async function getColegios() {
 }
 
 async function getHojas(domicilio) {
+  // 1. Traer hojas del colegio
   const data = await sbGet("colegios_hojas", {
     select: "orden,orden_principal,texto_breve,fecha_fin",
     domicilio: `eq.${domicilio}`
   });
 
-  // Agrupar por orden_principal
   const hojas = {};
   for (const r of data) {
-    const key = r.orden_principal || r.orden;
+    const key = r.orden_principal && r.orden_principal !== r.orden
+                  ? r.orden_principal
+                  : r.orden;
     if (!hojas[key]) {
-      hojas[key] = {
-        ordenPpal: key,
-        tipo: r.texto_breve,
-        fechaFin: r.fecha_fin,
-        ordenes: []
-      };
+      hojas[key] = { ordenPpal: key, tipo: r.texto_breve, fechaFin: r.fecha_fin, ordenes: [] };
     }
-    hojas[key].ordenes.push(r.orden);
+    if (!hojas[key].ordenes.includes(r.orden)) hojas[key].ordenes.push(r.orden);
+  }
+
+  // 2. Ver cuáles ya tienen respuesta en Supabase
+  const todasOrdenes = Object.keys(hojas);
+  let ordenesRespondidas = new Set();
+
+  if (todasOrdenes.length > 0) {
+    const respData = await sbGet("respuestas", {
+      select: "orden_ref",
+      orden_ref: `in.(${todasOrdenes.join(",")})`
+    });
+    respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
   }
 
   const lista = Object.values(hojas).map(h => ({
-    ordenPpal: h.ordenPpal,
-    tipo: h.tipo,
-    fechaFin: h.fechaFin,
-    cantTareas: h.ordenes.length
+    ordenPpal:  h.ordenPpal,
+    tipo:       h.tipo,
+    fechaFin:   h.fechaFin,
+    cantTareas: h.ordenes.length,
+    ordenes:    h.ordenes,
+    realizada:  ordenesRespondidas.has(String(h.ordenPpal))
   }));
 
   return { ok: true, hojas: lista };
 }
 
-async function getTareas(ordenPpal) {
-  // Obtener ordenes hijas
-  const dataHojas = await sbGet("colegios_hojas", {
-    select: "orden,fecha_inicio,fecha_fin",
-    orden_principal: `eq.${ordenPpal}`
-  });
+async function getTareas(ordenPpal, ordenesYaCalculadas) {
+  let ordenes = ordenesYaCalculadas && ordenesYaCalculadas.length > 0
+                  ? ordenesYaCalculadas : null;
+  let fechaInicio = "";
+  let fechaFin    = "";
 
-  const ordenes = dataHojas.map(r => r.orden);
-  const fechaInicio = dataHojas[0]?.fecha_inicio || "";
-  const fechaFin    = dataHojas[0]?.fecha_fin    || "";
-  if (ordenes.length === 0) return { ok: false, error: "Orden no encontrada" };
+  if (!ordenes) {
+    const dataHojas = await sbGet("colegios_hojas", {
+      select: "orden,fecha_inicio,fecha_fin",
+      orden_principal: `eq.${ordenPpal}`
+    });
+    ordenes     = dataHojas.map(r => r.orden);
+    fechaInicio = dataHojas[0]?.fecha_inicio || "";
+    fechaFin    = dataHojas[0]?.fecha_fin    || "";
+    if (ordenes.length === 0) ordenes = [ordenPpal];
+  } else {
+    const dataFechas = await sbGet("colegios_hojas", {
+      select: "fecha_inicio,fecha_fin",
+      orden: `eq.${ordenesYaCalculadas[0]}`
+    });
+    fechaInicio = dataFechas[0]?.fecha_inicio || "";
+    fechaFin    = dataFechas[0]?.fecha_fin    || "";
+  }
 
-  // Obtener claves de esas ordenes
   const dataClaves = await sbGet("claves_tareas", {
     select: "orden,clave,texto_breve,descripcion,orden_fila",
     orden: `in.(${ordenes.join(",")})`,
@@ -312,26 +328,15 @@ async function getTareas(ordenPpal) {
   });
 
   const tareas = dataClaves.map(r => ({
-    orden: r.orden,
-    clave: r.clave,
-    texto: r.texto_breve,
-    descripcion: r.descripcion
+    orden: r.orden, clave: r.clave,
+    texto: r.texto_breve, descripcion: r.descripcion
   }));
 
   return { ok: true, tareas, fechaInicio, fechaFin };
 }
 
-async function api(params) {
-  const accion = params.accion;
-  if (accion === "colegios") return getColegios();
-  if (accion === "hojas")    return getHojas(params.domicilio);
-  if (accion === "tareas")   return getTareas(params.orden);
-  throw new Error("Accion no reconocida");
-}
-
 async function apiPost(body) {
-  const tareas = body.tareas;
-  const filas = tareas.map(t => ({
+  const filas = body.tareas.map(t => ({
     mein:      t.mein,
     orden_ref: t.ordenRef,
     domicilio: t.domicilio,
@@ -357,26 +362,16 @@ async function apiPost(body) {
 }
 
 // ============================================================
-// Estado de la app
+// Estado
 // ============================================================
 let estado = {
-  paso: 1,
-  domicilio: "",
-  hojaSeleccionada: null,
-  tareas: [],
-  respuestas: {},
-  operario: "",
-  jefe: "",
-  fechaInicio: "",
-  fechaFin: ""
+  paso: 1, domicilio: "", hojaSeleccionada: null,
+  tareas: [], respuestas: {}, operario: "", jefe: "",
+  fechaInicio: "", fechaFin: ""
 };
 
-// ============================================================
-// Render principal
-// ============================================================
 function render() {
   const app = document.getElementById("app");
-
   const pasos = ["Colegio", "Hoja", "Respuestas", "Confirmación"];
   let html = `<div class="paso-indicator">`;
   pasos.forEach((p, i) => {
@@ -384,38 +379,25 @@ function render() {
     html += `<div class="paso ${cls}">${i + 1}. ${p}</div>`;
   });
   html += `</div>`;
-
   app.innerHTML = html;
 
-  if (estado.paso === 1) renderColegios();
+  if      (estado.paso === 1) renderColegios();
   else if (estado.paso === 2) renderHojas();
   else if (estado.paso === 3) renderFormularioTareas();
   else if (estado.paso === 4) renderConfirmacion();
 }
 
-// ============================================================
-// PASO 1 — Elegir colegio
-// ============================================================
 async function renderColegios() {
   const app = document.getElementById("app");
-  app.innerHTML += `
-    <div class="card">
-      <h2>Seleccioná tu colegio</h2>
-      <div id="contenido-colegios" class="loading">Cargando colegios...</div>
-    </div>`;
-
+  app.innerHTML += `<div class="card"><h2>Seleccioná tu colegio</h2>
+    <div id="contenido-colegios" class="loading">Cargando colegios...</div></div>`;
   try {
-    const res = await api({ accion: "colegios" });
-    if (!res.ok) throw new Error(res.error);
-
+    const res = await getColegios();
     let html = `<label>Domicilio del establecimiento</label>
       <select id="sel-colegio" onchange="seleccionarColegio(this.value)">
         <option value="">— Elegí un colegio —</option>`;
-    res.colegios.forEach(c => {
-      html += `<option value="${esc(c)}">${esc(c)}</option>`;
-    });
+    res.colegios.forEach(c => { html += `<option value="${esc(c)}">${esc(c)}</option>`; });
     html += `</select>`;
-
     document.getElementById("contenido-colegios").innerHTML = html;
   } catch (e) {
     document.getElementById("contenido-colegios").innerHTML =
@@ -430,19 +412,12 @@ function seleccionarColegio(domicilio) {
   render();
 }
 
-// ============================================================
-// PASO 2 — Elegir hoja
-// ============================================================
 async function renderHojas() {
   const app = document.getElementById("app");
-  app.innerHTML += `
-    <div class="card">
-      <h2>${esc(estado.domicilio)}</h2>
-      <div id="contenido-hojas" class="loading">Cargando hojas...</div>
-    </div>`;
-
+  app.innerHTML += `<div class="card"><h2>${esc(estado.domicilio)}</h2>
+    <div id="contenido-hojas" class="loading">Cargando hojas...</div></div>`;
   try {
-    const res = await api({ accion: "hojas", domicilio: estado.domicilio });
+    const res = await getHojas(estado.domicilio);
     if (!res.ok) throw new Error(res.error);
 
     let html = `<p style="font-size:0.85rem;color:#666;margin-bottom:14px;">
@@ -452,14 +427,25 @@ async function renderHojas() {
       html += `<div class="error-msg">No hay hojas disponibles para este colegio.</div>`;
     } else {
       res.hojas.forEach(h => {
-        html += `
-          <div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
-            <div>
-              <div class="hoja-tipo">${esc(h.tipo)}</div>
-              <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
-            </div>
-            <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas !== 1 ? 's' : ''}</div>
-          </div>`;
+        if (h.realizada) {
+          html += `
+            <div class="hoja-item realizada">
+              <div>
+                <div class="hoja-tipo">${esc(h.tipo)}</div>
+                <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
+              </div>
+              <div class="hoja-badge badge-realizada">✓ Realizada</div>
+            </div>`;
+        } else {
+          html += `
+            <div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
+              <div>
+                <div class="hoja-tipo">${esc(h.tipo)}</div>
+                <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
+              </div>
+              <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas !== 1 ? 's' : ''}</div>
+            </div>`;
+        }
       });
     }
 
@@ -475,20 +461,15 @@ async function seleccionarHoja(hoja) {
   estado.hojaSeleccionada = hoja;
   estado.paso = 3;
   render();
-
   const app = document.getElementById("app");
-  app.innerHTML += `<div class="card" id="card-tareas">
-    <div class="loading">Cargando tareas...</div>
-  </div>`;
-
+  app.innerHTML += `<div class="card" id="card-tareas"><div class="loading">Cargando tareas...</div></div>`;
   try {
-    const res = await api({ accion: "tareas", orden: hoja.ordenPpal });
+    const res = await getTareas(hoja.ordenPpal, hoja.ordenes);
     if (!res.ok) throw new Error(res.error);
-
-    estado.tareas = res.tareas;
+    estado.tareas      = res.tareas;
     estado.fechaInicio = res.fechaInicio || "";
     estado.fechaFin    = res.fechaFin    || "";
-    estado.respuestas = {};
+    estado.respuestas  = {};
     renderFormularioTareas();
   } catch (e) {
     document.getElementById("card-tareas").innerHTML =
@@ -496,26 +477,17 @@ async function seleccionarHoja(hoja) {
   }
 }
 
-// ============================================================
-// PASO 3 — Completar tareas
-// ============================================================
 function renderFormularioTareas() {
-  // Si no hay tareas cargadas todavía, no hacer nada
   if (!estado.tareas || estado.tareas.length === 0) return;
-
-  // Crear card-tareas si no existe
   let card = document.getElementById("card-tareas");
   if (!card) {
-    const app = document.getElementById("app");
     const div = document.createElement("div");
-    div.className = "card";
-    div.id = "card-tareas";
-    app.appendChild(div);
+    div.className = "card"; div.id = "card-tareas";
+    document.getElementById("app").appendChild(div);
     card = div;
   }
 
   const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
-
   const ahora = new Date();
   const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -585,15 +557,11 @@ function renderFormularioTareas() {
 }
 
 function elegirOpcion(key, opcion, btn) {
-  // Deseleccionar otros botones del mismo grupo
   btn.closest(".respuesta-opciones").querySelectorAll(".opcion-btn").forEach(b => {
     b.classList.remove("selected", "selected-na");
   });
-
   const esNA = opcion === "No aplica" || opcion === "En obra";
   btn.classList.add(esNA ? "selected-na" : "selected");
-
-  // Si es "No aplica" o "En obra", completar el textarea automáticamente
   const txt = document.getElementById(`txt_${key}`);
   if (esNA) {
     txt.value = opcion.toLowerCase();
@@ -602,7 +570,6 @@ function elegirOpcion(key, opcion, btn) {
     if (txt.value === "no aplica" || txt.value === "en obra") txt.value = "";
     txt.style.opacity = "1";
   }
-
   estado.respuestas[key] = { opcion, texto: txt.value };
 }
 
@@ -612,14 +579,10 @@ function actualizarRespuesta(key) {
   estado.respuestas[key].texto = txt;
 }
 
-// ============================================================
-// Enviar respuestas
-// ============================================================
 async function enviarRespuestas() {
   const errorDiv = document.getElementById("error-envio");
   errorDiv.innerHTML = "";
 
-  // Validar que todas las tareas tengan respuesta
   const sinResponder = estado.tareas.filter(t => {
     const key = `${t.orden}_${t.clave}`;
     const r = estado.respuestas[key];
@@ -627,10 +590,8 @@ async function enviarRespuestas() {
   });
 
   if (sinResponder.length > 0) {
-    errorDiv.innerHTML = `<div class="error-msg">
-      Falta completar ${sinResponder.length} tarea(s): 
-      ${sinResponder.map(t => t.clave).join(", ")}
-    </div>`;
+    errorDiv.innerHTML = `<div class="error-msg">Falta completar ${sinResponder.length} tarea(s): 
+      ${sinResponder.map(t => t.clave).join(", ")}</div>`;
     return;
   }
 
@@ -639,41 +600,26 @@ async function enviarRespuestas() {
     return;
   }
 
-  // Armar las tareas a guardar
-  // Cada tarea del MEPL_CLAVES es una fila en MEPL_RESPUESTAS
-  // Las respuestas de una hoja (mismo ordenPpal) se unen con || en la col E
-  // Agrupamos por MEIN (col A = orden individual de cada tarea)
-
   const tareasPorMEIN = {};
   estado.tareas.forEach(t => {
     const key = `${t.orden}_${t.clave}`;
     const r = estado.respuestas[key] || {};
     const respTexto = r.texto || r.opcion || "no aplica";
-
     if (!tareasPorMEIN[t.orden]) {
       tareasPorMEIN[t.orden] = {
-        mein: t.orden,
-        ordenRef: estado.hojaSeleccionada.ordenPpal,
-        domicilio: estado.domicilio,
-        tipo: estado.hojaSeleccionada.tipo,
-        respuestas: []
+        mein: t.orden, ordenRef: estado.hojaSeleccionada.ordenPpal,
+        domicilio: estado.domicilio, tipo: estado.hojaSeleccionada.tipo, respuestas: []
       };
     }
     tareasPorMEIN[t.orden].respuestas.push(respTexto);
   });
 
-  // Convertir respuestas a formato || y armar array
   const tareas = Object.values(tareasPorMEIN).map(m => ({
-    mein: m.mein,
-    ordenRef: m.ordenRef,
-    domicilio: m.domicilio,
-    tipo: m.tipo,
-    respuesta: m.respuestas.join("||"),
-    operario: estado.operario,
-    jefe: estado.jefe
+    mein: m.mein, ordenRef: m.ordenRef, domicilio: m.domicilio,
+    tipo: m.tipo, respuesta: m.respuestas.join("||"),
+    operario: estado.operario, jefe: estado.jefe
   }));
 
-  // Deshabilitar botón
   const btn = document.querySelector(".btn-success");
   btn.disabled = true;
   btn.textContent = "Enviando...";
@@ -681,7 +627,6 @@ async function enviarRespuestas() {
   try {
     const res = await apiPost({ tareas });
     if (!res.ok) throw new Error(res.error);
-
     estado.paso = 4;
     render();
   } catch (e) {
@@ -691,9 +636,6 @@ async function enviarRespuestas() {
   }
 }
 
-// ============================================================
-// PASO 4 — Confirmación
-// ============================================================
 function renderConfirmacion() {
   const app = document.getElementById("app");
   app.innerHTML += `
@@ -723,7 +665,6 @@ function volver() {
 
 function formatearDescripcion(texto) {
   if (!texto) return "";
-  // Normalizar saltos de linea
   const normalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const idx = normalizado.indexOf("\n");
   if (idx > 0) {
@@ -736,15 +677,10 @@ function formatearDescripcion(texto) {
 
 function esc(str) {
   return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// ============================================================
-// Arrancar
-// ============================================================
 render();
 </script>
 </body>
