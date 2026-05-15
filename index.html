@@ -509,7 +509,10 @@ function renderFormularioTareas() {
 
   const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
 
-  let html = `<h2>${esc(estado.hojaSeleccionada.tipo)}</h2>`;
+  let html = `<h2>${esc(estado.hojaSeleccionada.tipo)}</h2>
+  <p style="font-size:0.82rem;color:#666;margin-bottom:16px;padding:6px 10px;background:#f0f5ff;border-radius:6px;border-left:3px solid #1a3a5c;">
+    📍 ${esc(estado.domicilio)}
+  </p>`;
 
   estado.tareas.forEach((t, idx) => {
     const key = `${t.orden}_${t.clave}`;
