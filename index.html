@@ -648,7 +648,8 @@ function renderConfirmacion() {
 }
 
 function reiniciar() {
-  estado = { paso: 1, domicilio: "", hojaSeleccionada: null,
+  const domicilioActual = estado.domicilio;
+  estado = { paso: 2, domicilio: domicilioActual, hojaSeleccionada: null,
              tareas: [], respuestas: {}, operario: "", jefe: "",
              fechaInicio: "", fechaFin: "" };
   render();
