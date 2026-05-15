@@ -235,9 +235,125 @@
 
 <script>
 // ============================================================
-// CONFIGURACION — reemplazar con la URL del Apps Script
+// CONFIGURACION — solo Supabase, sin Apps Script
 // ============================================================
-const API_URL = "https://script.google.com/a/macros/indaltec.com/s/AKfycbzgCuue0JRmM7PcIMv0p6Ulo3NLYQWkplpRSXIhhJmGB0KeMJG9vpXM6b6ZV-A7BWkVRg/exec";
+const SUPABASE_URL = "https://zynvptlesftdpyijxvpv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_a5BtY5K2O8w2rPBlIeKRUg_u6z478MX";
+
+// ============================================================
+// API helpers — todo via Supabase REST
+// Funciona desde cualquier celular sin cuenta Google
+// ============================================================
+async function sbGet(tabla, params = {}) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${tabla}`);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  if (!res.ok) throw new Error("Error al leer datos: " + res.status);
+  return res.json();
+}
+
+async function getColegios() {
+  const data = await sbGet("colegios_hojas", { select: "domicilio" });
+  const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
+  return { ok: true, colegios };
+}
+
+async function getHojas(domicilio) {
+  const data = await sbGet("colegios_hojas", {
+    select: "orden,orden_principal,texto_breve,fecha_fin",
+    domicilio: `eq.${domicilio}`
+  });
+
+  // Agrupar por orden_principal
+  const hojas = {};
+  for (const r of data) {
+    const key = r.orden_principal || r.orden;
+    if (!hojas[key]) {
+      hojas[key] = {
+        ordenPpal: key,
+        tipo: r.texto_breve,
+        fechaFin: r.fecha_fin,
+        ordenes: []
+      };
+    }
+    hojas[key].ordenes.push(r.orden);
+  }
+
+  const lista = Object.values(hojas).map(h => ({
+    ordenPpal: h.ordenPpal,
+    tipo: h.tipo,
+    fechaFin: h.fechaFin,
+    cantTareas: h.ordenes.length
+  }));
+
+  return { ok: true, hojas: lista };
+}
+
+async function getTareas(ordenPpal) {
+  // Obtener ordenes hijas
+  const dataHojas = await sbGet("colegios_hojas", {
+    select: "orden",
+    orden_principal: `eq.${ordenPpal}`
+  });
+
+  const ordenes = dataHojas.map(r => r.orden);
+  if (ordenes.length === 0) return { ok: false, error: "Orden no encontrada" };
+
+  // Obtener claves de esas ordenes
+  const dataClaves = await sbGet("claves_tareas", {
+    select: "orden,clave,texto_breve,descripcion",
+    orden: `in.(${ordenes.join(",")})`
+  });
+
+  const tareas = dataClaves.map(r => ({
+    orden: r.orden,
+    clave: r.clave,
+    texto: r.texto_breve,
+    descripcion: r.descripcion
+  }));
+
+  return { ok: true, tareas };
+}
+
+async function api(params) {
+  const accion = params.accion;
+  if (accion === "colegios") return getColegios();
+  if (accion === "hojas")    return getHojas(params.domicilio);
+  if (accion === "tareas")   return getTareas(params.orden);
+  throw new Error("Accion no reconocida");
+}
+
+async function apiPost(body) {
+  const tareas = body.tareas;
+  const filas = tareas.map(t => ({
+    mein:      t.mein,
+    orden_ref: t.ordenRef,
+    domicilio: t.domicilio,
+    tipo:      t.tipo,
+    respuesta: t.respuesta,
+    operario:  t.operario,
+    jefe:      t.jefe
+  }));
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/respuestas`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify(filas)
+  });
+
+  if (!res.ok) throw new Error("Error al guardar: " + await res.text());
+  return { ok: true };
+}
 
 // ============================================================
 // Estado de la app
@@ -578,49 +694,6 @@ function reiniciar() {
 function volver() {
   estado.paso = Math.max(1, estado.paso - 1);
   render();
-}
-
-// ============================================================
-// API helpers — usa JSONP para evitar CORS con Apps Script
-// ============================================================
-function api(params) {
-  return new Promise((resolve, reject) => {
-    const callbackName = "cb_" + Date.now();
-    const url = new URL(API_URL);
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    url.searchParams.set("callback", callbackName);
-
-    const script = document.createElement("script");
-    script.src = url.toString();
-
-    window[callbackName] = function(data) {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-
-    script.onerror = function() {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      reject(new Error("Error de conexión con el servidor"));
-    };
-
-    setTimeout(() => {
-      if (window[callbackName]) {
-        delete window[callbackName];
-        try { document.body.removeChild(script); } catch(e) {}
-        reject(new Error("Tiempo de espera agotado"));
-      }
-    }, 15000);
-
-    document.body.appendChild(script);
-  });
-}
-
-async function apiPost(body) {
-  // Para POST usamos GET con los datos serializados (Apps Script no soporta POST cross-origin)
-  const tareas = body.tareas;
-  return api({ accion: "guardar", datos: JSON.stringify(tareas) });
 }
 
 function esc(str) {
