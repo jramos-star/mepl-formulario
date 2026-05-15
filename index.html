@@ -304,8 +304,9 @@ async function getTareas(ordenPpal) {
 
   // Obtener claves de esas ordenes
   const dataClaves = await sbGet("claves_tareas", {
-    select: "orden,clave,texto_breve,descripcion",
-    orden: `in.(${ordenes.join(",")})`
+    select: "orden,clave,texto_breve,descripcion,orden_fila",
+    orden: `in.(${ordenes.join(",")})`,
+    order: "orden_fila.asc"
   });
 
   const tareas = dataClaves.map(r => ({
