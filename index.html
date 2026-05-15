@@ -723,20 +723,15 @@ function volver() {
 
 function formatearDescripcion(texto) {
   if (!texto) return "";
-  // El titulo termina antes de la primera palabra que empieza con minuscula
-  const palabras = texto.split(" ");
-  let iTitulo = palabras.length; // por defecto todo es titulo
-  for (let i = 0; i < palabras.length; i++) {
-    const p = palabras[i].replace(/[^a-zA-ZáéíóúñüÁÉÍÓÚÑÜ]/g, ""); // solo letras
-    if (p.length > 0 && /^[a-záéíóúñü]/.test(p)) {
-      iTitulo = i;
-      break;
-    }
+  // Normalizar saltos de linea
+  const normalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const idx = normalizado.indexOf("\n");
+  if (idx > 0) {
+    const titulo = normalizado.slice(0, idx).trim();
+    const cuerpo = normalizado.slice(idx + 1).trim();
+    return `<strong style="display:block;margin-bottom:6px;">${esc(titulo)}</strong>${esc(cuerpo).replace(/\n/g, "<br>")}`;
   }
-  if (iTitulo === 0 || iTitulo >= palabras.length) return esc(texto);
-  const titulo = palabras.slice(0, iTitulo).join(" ").trim();
-  const cuerpo = palabras.slice(iTitulo).join(" ").trim();
-  return `<strong style="display:block;margin-bottom:6px;">${esc(titulo)}</strong>${esc(cuerpo)}`;
+  return esc(normalizado);
 }
 
 function esc(str) {
