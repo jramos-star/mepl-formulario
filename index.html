@@ -273,17 +273,13 @@ async function getHojas(domicilio) {
     if (!hojas[key].ordenes.includes(r.orden)) hojas[key].ordenes.push(r.orden);
   }
 
-  // 2. Ver cuáles ya tienen respuesta en Supabase
-  const todasOrdenes = Object.keys(hojas);
+  // 2. Ver cuáles ya tienen respuesta en Supabase (filtrar por domicilio, más eficiente)
   let ordenesRespondidas = new Set();
-
-  if (todasOrdenes.length > 0) {
-    const respData = await sbGet("respuestas", {
-      select: "orden_ref",
-      orden_ref: `in.(${todasOrdenes.join(",")})`
-    });
-    respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
-  }
+  const respData = await sbGet("respuestas", {
+    select: "orden_ref",
+    domicilio: `eq.${domicilio}`
+  });
+  respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
 
   const lista = Object.values(hojas).map(h => ({
     ordenPpal:  h.ordenPpal,
