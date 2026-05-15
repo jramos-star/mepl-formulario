@@ -723,14 +723,23 @@ function volver() {
 
 function formatearDescripcion(texto) {
   if (!texto) return "";
-  // Buscar donde termina el titulo (primera letra minuscula precedida de espacio)
-  const match = texto.match(/^([A-ZÁÉÍÓÚÑÜ\s\-\/\.\,0-9]+?)\s([a-záéíóúñü])/);
-  if (match) {
-    const titulo = match[1].trim();
-    const cuerpo = texto.slice(titulo.length).trim();
-    return `<strong style="display:block;margin-bottom:6px;">${esc(titulo)}</strong>${esc(cuerpo)}`;
+  // El titulo son las palabras iniciales completamente en mayusculas (con espacios, guiones, numeros)
+  // El cuerpo empieza cuando aparece una palabra con letras minusculas
+  const palabras = texto.split(" ");
+  let iTitulo = 0;
+  for (let i = 0; i < palabras.length; i++) {
+    const p = palabras[i];
+    // Si la palabra tiene alguna letra minuscula, el cuerpo empieza aqui
+    if (/[a-záéíóúñü]/.test(p)) {
+      iTitulo = i;
+      break;
+    }
+    iTitulo = i + 1;
   }
-  return esc(texto);
+  if (iTitulo === 0 || iTitulo >= palabras.length) return esc(texto);
+  const titulo = palabras.slice(0, iTitulo).join(" ").trim();
+  const cuerpo = palabras.slice(iTitulo).join(" ").trim();
+  return `<strong style="display:block;margin-bottom:6px;">${esc(titulo)}</strong>${esc(cuerpo)}`;
 }
 
 function esc(str) {
