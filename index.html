@@ -176,6 +176,8 @@
     .opcion-btn:hover { border-color: #1a3a5c; background: #f0f5ff; }
     .opcion-btn.selected { background: #1a3a5c; color: white; border-color: #1a3a5c; }
     .opcion-btn.selected-na { background: #888; color: white; border-color: #888; }
+    .opcion-btn.selected-informe { background: #1a6a8a; color: white; border-color: #1a6a8a; }
+
 
 
     /* Cards de colegios — paso 1 */
@@ -352,7 +354,7 @@ async function getHojas(domicilio) {
     if (!hojas[key].ordenes.includes(r.orden)) hojas[key].ordenes.push(r.orden);
   }
 
-  // 2. Ver cuáles ya tienen respuesta en Supabase (filtrar por domicilio, más eficiente)
+  // 2. Ver cuáles ya tienen respuesta en Supabase (filtrar por domicilio)
   let ordenesRespondidas = new Set();
   const respData = await sbGet("respuestas", {
     select: "orden_ref",
@@ -360,11 +362,31 @@ async function getHojas(domicilio) {
   });
   respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
 
+  // 3. Contar claves reales de claves_tareas para cada grupo de órdenes
+  const todasOrdenes = Object.values(hojas).flatMap(h => h.ordenes);
+  let conteoClaves = {};
+  if (todasOrdenes.length > 0) {
+    // Traer todas las claves de una sola vez
+    const dataClaves = await sbGet("claves_tareas", {
+      select: "orden",
+      orden: `in.(${todasOrdenes.join(",")})`
+    });
+    // Mapear cada orden hija a su orden principal y contar
+    const ordenAPpal = {};
+    Object.values(hojas).forEach(h => {
+      h.ordenes.forEach(o => { ordenAPpal[String(o)] = String(h.ordenPpal); });
+    });
+    dataClaves.forEach(r => {
+      const ppal = ordenAPpal[String(r.orden)] || String(r.orden);
+      conteoClaves[ppal] = (conteoClaves[ppal] || 0) + 1;
+    });
+  }
+
   const lista = Object.values(hojas).map(h => ({
     ordenPpal:  h.ordenPpal,
     tipo:       h.tipo,
     fechaFin:   h.fechaFin,
-    cantTareas: h.ordenes.length,
+    cantTareas: conteoClaves[String(h.ordenPpal)] || h.ordenes.length,
     ordenes:    h.ordenes,
     realizada:  ordenesRespondidas.has(String(h.ordenPpal))
   }));
@@ -608,8 +630,15 @@ function renderFormularioTareas() {
   </div>
   <div style="font-size:0.95rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;">${esc(estado.hojaSeleccionada.tipo)}</div>`;
 
+  // Tipos de hoja que requieren botón de informe en la primera tarea
+  const tiposConInforme = ["GAS", "AGUA", "ELECTRICA", "ELECTR"];
+  const tipoHoja = (estado.hojaSeleccionada.tipo || "").toUpperCase();
+  const hojaConInforme = tiposConInforme.some(t => tipoHoja.includes(t));
+
   estado.tareas.forEach((t, idx) => {
     const key = `${t.orden}_${t.clave}`;
+    // Botón de informe solo en primera tarea de hojas que corresponden
+    const mostrarInforme = hojaConInforme && idx === 0;
     html += `
       <div class="tarea-card">
         <div class="tarea-header">
@@ -623,6 +652,10 @@ function renderFormularioTareas() {
             ${opciones.map(op => `
               <button class="opcion-btn" onclick="elegirOpcion('${key}', '${op}', this)">${op}</button>
             `).join("")}
+            ${mostrarInforme ? `
+              <button class="opcion-btn" onclick="elegirOpcion('${key}', 'se adjunta informe de consumo', this)" style="border-color:#1a6a8a;color:#1a6a8a;">
+                📋 Se adjunta informe de consumo
+              </button>` : ""}
           </div>
           <textarea id="txt_${key}" placeholder="Descripción de la tarea realizada (obligatorio)..."
             onchange="actualizarRespuesta('${key}')"></textarea>
@@ -657,16 +690,23 @@ function renderFormularioTareas() {
 
 function elegirOpcion(key, opcion, btn) {
   btn.closest(".respuesta-opciones").querySelectorAll(".opcion-btn").forEach(b => {
-    b.classList.remove("selected", "selected-na");
+    b.classList.remove("selected", "selected-na", "selected-informe");
   });
   const esNA = opcion === "No aplica" || opcion === "En obra";
-  btn.classList.add(esNA ? "selected-na" : "selected");
+  const esInforme = opcion === "se adjunta informe de consumo";
+  if (esNA) btn.classList.add("selected-na");
+  else if (esInforme) btn.classList.add("selected-informe");
+  else btn.classList.add("selected");
+
   const txt = document.getElementById(`txt_${key}`);
   if (esNA) {
     txt.value = opcion.toLowerCase();
     txt.style.opacity = "0.5";
+  } else if (esInforme) {
+    txt.value = "se adjunta informe de consumo";
+    txt.style.opacity = "0.6";
   } else {
-    if (txt.value === "no aplica" || txt.value === "en obra") txt.value = "";
+    if (txt.value === "no aplica" || txt.value === "en obra" || txt.value === "se adjunta informe de consumo") txt.value = "";
     txt.style.opacity = "1";
   }
   estado.respuestas[key] = { opcion, texto: txt.value };
