@@ -708,8 +708,27 @@ async function renderColegiosPorTipo() {
       respData.forEach(r => respondidas.add(String(r.orden_ref)));
     }
 
+    // Contar tareas reales por orden
+    const todasOrdenes = Object.values(colegios).flatMap(c => c.ordenes);
+    let conteoClaves = {};
+    if (todasOrdenes.length > 0) {
+      const dataClaves = await sbGet("claves_tareas", {
+        select: "orden",
+        orden: `in.(${todasOrdenes.join(",")})`
+      });
+      const ordenAPpal = {};
+      Object.values(colegios).forEach(c => {
+        c.ordenes.forEach(o => { ordenAPpal[String(o)] = String(c.ordenPpal); });
+      });
+      dataClaves.forEach(r => {
+        const ppal = ordenAPpal[String(r.orden)] || String(r.orden);
+        conteoClaves[ppal] = (conteoClaves[ppal] || 0) + 1;
+      });
+    }
+
     const lista = Object.values(colegios).map(c => ({
       ...c,
+      cantTareas: conteoClaves[String(c.ordenPpal)] || c.ordenes.length,
       realizada: respondidas.has(String(c.ordenPpal))
     })).sort((a, b) => a.domicilio.localeCompare(b.domicilio));
 
@@ -739,7 +758,7 @@ async function renderColegiosPorTipo() {
               <div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
               <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: ' + esc(c.fechaFin) : ''}</div>
             </div>
-            <div class="hoja-badge">›</div>
+            <div class="hoja-badge">${c.cantTareas} tarea${c.cantTareas !== 1 ? 's' : ''}</div>
           </div>`;
       }
     });
