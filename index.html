@@ -26,6 +26,18 @@
 
     header h1 { font-size: 1.2rem; font-weight: 600; }
     header span { font-size: 0.85rem; opacity: 0.75; }
+    .btn-inicio {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-inicio:hover { background: rgba(255,255,255,0.25); }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 24px; }
 
@@ -389,6 +401,7 @@
     <h1>MEPL — Formulario de Respuestas</h1>
     <span>Indaltec SA</span>
   </div>
+  <button class="btn-inicio" onclick="irInicio()" id="btn-inicio" style="display:none;">⌂ Inicio</button>
 </header>
 
 <div class="container">
@@ -553,6 +566,10 @@ let estado = {
 function render() {
   const app = document.getElementById("app");
 
+  // Mostrar botón inicio solo cuando no estamos en paso 0
+  const btnInicio = document.getElementById("btn-inicio");
+  if (btnInicio) btnInicio.style.display = estado.paso === 0 ? "none" : "block";
+
   if (estado.paso === 0) {
     app.innerHTML = "";
     renderModo();
@@ -606,6 +623,14 @@ function renderModo() {
         </div>
       </div>
     </div>`;
+}
+
+function irInicio() {
+  estado = { paso: 0, modo: "", tipoSeleccionado: "",
+             domicilio: "", hojaSeleccionada: null,
+             tareas: [], respuestas: {}, operario: "", jefe: "",
+             fechaInicio: "", fechaFin: "" };
+  render();
 }
 
 function seleccionarModo(modo) {
