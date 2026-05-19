@@ -258,6 +258,88 @@
       pointer-events: none;
     }
 
+
+    /* Paso 0 — modo de búsqueda */
+    .modo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    @media (max-width: 500px) { .modo-grid { grid-template-columns: 1fr; } }
+
+    .modo-card {
+      background: white;
+      border: 2px solid #e8edf2;
+      border-radius: 14px;
+      padding: 28px 20px;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .modo-card:hover {
+      border-color: #1a3a5c;
+      background: #f0f5ff;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(26,58,92,0.13);
+    }
+    .modo-icono { font-size: 2.4rem; }
+    .modo-titulo { font-weight: 700; font-size: 1rem; color: #1a3a5c; }
+    .modo-desc { font-size: 0.8rem; color: #888; line-height: 1.4; }
+
+    /* Tipos de tarea — paso por tipo */
+    .tipos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    @media (max-width: 600px) { .tipos-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 400px) { .tipos-grid { grid-template-columns: 1fr; } }
+
+    .tipo-card {
+      background: white;
+      border: 2px solid #e8edf2;
+      border-radius: 10px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1a3a5c;
+    }
+    .tipo-card:hover {
+      border-color: #1a3a5c;
+      background: #f0f5ff;
+      transform: translateY(-1px);
+    }
+    .tipo-card .tipo-icono { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+
+    /* Lista de colegios por tipo */
+    .colegio-tipo-item {
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .colegio-tipo-item:hover { border-color: #1a3a5c; background: #f0f5ff; }
+    .colegio-tipo-item.realizada {
+      opacity: 0.65;
+      cursor: not-allowed;
+      background: #f5f5f5;
+    }
+    .colegio-tipo-item.realizada:hover { border-color: #d0d7de; background: #f5f5f5; }
+
     .loading { text-align: center; padding: 40px; color: #888; font-size: 0.9rem; }
     .loading::before { content: "⏳ "; }
 
@@ -462,14 +544,25 @@ async function apiPost(body) {
 // Estado
 // ============================================================
 let estado = {
-  paso: 1, domicilio: "", hojaSeleccionada: null,
+  paso: 0, modo: "", tipoSeleccionado: "",
+  domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
   fechaInicio: "", fechaFin: ""
 };
 
 function render() {
   const app = document.getElementById("app");
-  const pasos = ["Colegio", "Hoja", "Respuestas", "Confirmación"];
+
+  if (estado.paso === 0) {
+    app.innerHTML = "";
+    renderModo();
+    return;
+  }
+
+  const pasos = estado.modo === "tipo"
+    ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
+    : ["Colegio", "Hoja", "Respuestas", "Confirmación"];
+
   let html = `<div class="paso-indicator">`;
   pasos.forEach((p, i) => {
     const cls = i + 1 === estado.paso ? "activo" : i + 1 < estado.paso ? "completo" : "";
@@ -478,10 +571,221 @@ function render() {
   html += `</div>`;
   app.innerHTML = html;
 
-  if      (estado.paso === 1) renderColegios();
-  else if (estado.paso === 2) renderHojas();
-  else if (estado.paso === 3) renderFormularioTareas();
-  else if (estado.paso === 4) renderConfirmacion();
+  if (estado.modo === "tipo") {
+    if      (estado.paso === 1) renderTipos();
+    else if (estado.paso === 2) renderColegiosPorTipo();
+    else if (estado.paso === 3) renderFormularioTareas();
+    else if (estado.paso === 4) renderConfirmacion();
+  } else {
+    if      (estado.paso === 1) renderColegios();
+    else if (estado.paso === 2) renderHojas();
+    else if (estado.paso === 3) renderFormularioTareas();
+    else if (estado.paso === 4) renderConfirmacion();
+  }
+}
+
+
+// ============================================================
+// PASO 0 — Elegir modo
+// ============================================================
+function renderModo() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="card">
+      <h2>¿Cómo querés buscar?</h2>
+      <div class="modo-grid">
+        <div class="modo-card" onclick="seleccionarModo('colegio')">
+          <span class="modo-icono">🏫</span>
+          <span class="modo-titulo">Por colegio</span>
+          <span class="modo-desc">Elegís tu establecimiento y ves todas las hojas disponibles</span>
+        </div>
+        <div class="modo-card" onclick="seleccionarModo('tipo')">
+          <span class="modo-icono">📋</span>
+          <span class="modo-titulo">Por tipo de tarea</span>
+          <span class="modo-desc">Elegís el tipo (Saneamiento, Gas, etc.) y ves todos los colegios</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function seleccionarModo(modo) {
+  estado.modo = modo;
+  estado.paso = 1;
+  render();
+}
+
+// ============================================================
+// MODO TIPO — Paso 1: Elegir tipo
+// ============================================================
+async function renderTipos() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card">
+    <h2>Seleccioná el tipo de tarea</h2>
+    <div id="contenido-tipos" class="loading">Cargando tipos...</div>
+  </div>`;
+
+  try {
+    const data = await sbGet("colegios_hojas", { select: "texto_breve" });
+    const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
+
+    const iconos = {
+      "GAS": "🔥", "AGUA": "💧", "ELECTRICA": "⚡", "ELECTR": "⚡",
+      "SANEAMIENTO": "🧹", "ESTRUCTURA": "🏗️", "MAMPOSTERIA": "🧱",
+      "CALEFACCION": "♨️", "INCENDIO": "🚒", "PLUVIALES": "🌧️",
+      "CLOACAL": "🚰", "BAJA TENSION": "🔌", "MOBILIARIO": "🪑",
+      "CUBIERTA": "🏠", "PREDIO": "🌳", "TERMINACIONES": "🎨",
+      "CERRAMIENTO": "🚪", "ELEVADORA": "🛗", "PLATAFORMA": "🛗"
+    };
+
+    function getIcono(tipo) {
+      const t = tipo.toUpperCase();
+      for (const [k, v] of Object.entries(iconos)) {
+        if (t.includes(k)) return v;
+      }
+      return "📋";
+    }
+
+    let html = `<div class="tipos-grid">`;
+    tipos.forEach(t => {
+      html += `
+        <div class="tipo-card" onclick="seleccionarTipo('${esc(t)}')">
+          <span class="tipo-icono">${getIcono(t)}</span>
+          ${esc(t)}
+        </div>`;
+    });
+    html += `</div>`;
+    html += `<br><button class="btn btn-back" onclick="volverModo()">← Cambiar modo</button>`;
+    document.getElementById("contenido-tipos").innerHTML = html;
+  } catch (e) {
+    document.getElementById("contenido-tipos").innerHTML =
+      `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+function seleccionarTipo(tipo) {
+  estado.tipoSeleccionado = tipo;
+  estado.paso = 2;
+  render();
+}
+
+// ============================================================
+// MODO TIPO — Paso 2: Ver colegios con ese tipo
+// ============================================================
+async function renderColegiosPorTipo() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card">
+    <h2>${esc(estado.tipoSeleccionado)}</h2>
+    <div id="contenido-colegios-tipo" class="loading">Cargando colegios...</div>
+  </div>`;
+
+  try {
+    // Traer todos los colegios que tienen este tipo
+    const data = await sbGet("colegios_hojas", {
+      select: "domicilio,orden,orden_principal,fecha_fin",
+      texto_breve: `eq.${estado.tipoSeleccionado}`
+    });
+
+    // Agrupar por domicilio → orden principal
+    const colegios = {};
+    for (const r of data) {
+      const dom = r.domicilio;
+      const ppal = r.orden_principal && r.orden_principal !== r.orden
+                    ? r.orden_principal : r.orden;
+      if (!colegios[dom]) {
+        colegios[dom] = { domicilio: dom, ordenPpal: ppal, fechaFin: r.fecha_fin, ordenes: [] };
+      }
+      if (!colegios[dom].ordenes.includes(r.orden)) colegios[dom].ordenes.push(r.orden);
+    }
+
+    // Ver cuáles ya están respondidas
+    const ordenesAll = Object.values(colegios).map(c => c.ordenPpal);
+    let respondidas = new Set();
+    if (ordenesAll.length > 0) {
+      const respData = await sbGet("respuestas", {
+        select: "orden_ref",
+        orden_ref: `in.(${ordenesAll.join(",")})`
+      });
+      respData.forEach(r => respondidas.add(String(r.orden_ref)));
+    }
+
+    const lista = Object.values(colegios).map(c => ({
+      ...c,
+      realizada: respondidas.has(String(c.ordenPpal))
+    })).sort((a, b) => a.domicilio.localeCompare(b.domicilio));
+
+    if (lista.length === 0) {
+      document.getElementById("contenido-colegios-tipo").innerHTML =
+        `<div class="error-msg">No hay colegios con este tipo de tarea.</div>`;
+      return;
+    }
+
+    let html = `<p style="font-size:0.85rem;color:#666;margin-bottom:14px;">
+      ${lista.filter(c => !c.realizada).length} pendiente(s) · ${lista.filter(c => c.realizada).length} realizada(s)</p>`;
+
+    lista.forEach(c => {
+      if (c.realizada) {
+        html += `
+          <div class="colegio-tipo-item realizada">
+            <div>
+              <div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+              <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: ' + esc(c.fechaFin) : ''}</div>
+            </div>
+            <div class="hoja-badge badge-realizada">✓ Realizada</div>
+          </div>`;
+      } else {
+        html += `
+          <div class="colegio-tipo-item" onclick="seleccionarColegioTipo(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+            <div>
+              <div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+              <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: ' + esc(c.fechaFin) : ''}</div>
+            </div>
+            <div class="hoja-badge">›</div>
+          </div>`;
+      }
+    });
+
+    html += `<br><button class="btn btn-back" onclick="volver()">← Cambiar tipo</button>`;
+    document.getElementById("contenido-colegios-tipo").innerHTML = html;
+  } catch (e) {
+    document.getElementById("contenido-colegios-tipo").innerHTML =
+      `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+async function seleccionarColegioTipo(colegio) {
+  // Armar la hoja seleccionada con el tipo ya conocido
+  estado.domicilio = colegio.domicilio;
+  estado.hojaSeleccionada = {
+    ordenPpal: colegio.ordenPpal,
+    tipo: estado.tipoSeleccionado,
+    fechaFin: colegio.fechaFin,
+    ordenes: colegio.ordenes
+  };
+  estado.paso = 3;
+  render();
+
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card" id="card-tareas"><div class="loading">Cargando tareas...</div></div>`;
+
+  try {
+    const res = await getTareas(colegio.ordenPpal, colegio.ordenes);
+    if (!res.ok) throw new Error(res.error);
+    estado.tareas      = res.tareas;
+    estado.fechaInicio = res.fechaInicio || "";
+    estado.fechaFin    = res.fechaFin    || "";
+    estado.respuestas  = {};
+    renderFormularioTareas();
+  } catch (e) {
+    document.getElementById("card-tareas").innerHTML =
+      `<div class="error-msg">Error al cargar tareas: ${e.message}</div>`;
+  }
+}
+
+function volverModo() {
+  estado.paso = 0;
+  estado.modo = "";
+  estado.tipoSeleccionado = "";
+  render();
 }
 
 
@@ -791,15 +1095,30 @@ function renderConfirmacion() {
 }
 
 function reiniciar() {
-  const domicilioActual = estado.domicilio;
-  estado = { paso: 2, domicilio: domicilioActual, hojaSeleccionada: null,
-             tareas: [], respuestas: {}, operario: "", jefe: "",
-             fechaInicio: "", fechaFin: "" };
+  if (estado.modo === "tipo") {
+    // Volver a la lista de colegios del mismo tipo
+    estado.paso = 2;
+    estado.hojaSeleccionada = null;
+    estado.tareas = []; estado.respuestas = {};
+    estado.operario = ""; estado.jefe = "";
+    estado.fechaInicio = ""; estado.fechaFin = "";
+  } else {
+    // Volver a las hojas del mismo colegio
+    const domicilioActual = estado.domicilio;
+    estado = { paso: 2, modo: "colegio", tipoSeleccionado: "",
+               domicilio: domicilioActual, hojaSeleccionada: null,
+               tareas: [], respuestas: {}, operario: "", jefe: "",
+               fechaInicio: "", fechaFin: "" };
+  }
   render();
 }
 
 function volver() {
-  estado.paso = Math.max(1, estado.paso - 1);
+  if (estado.paso <= 1) {
+    volverModo();
+    return;
+  }
+  estado.paso = estado.paso - 1;
   render();
 }
 
@@ -821,6 +1140,7 @@ function esc(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+estado.paso = 0;
 render();
 </script>
 </body>
