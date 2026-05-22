@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -352,6 +352,37 @@
     }
     .colegio-tipo-item.realizada:hover { border-color: #d0d7de; background: #f5f5f5; }
 
+
+    /* Selector de mes */
+    .mes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .mes-card {
+      background: white;
+      border: 2px solid #e8edf2;
+      border-radius: 12px;
+      padding: 18px 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-align: center;
+    }
+    .mes-card:hover {
+      border-color: #1a3a5c;
+      background: #f0f5ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(26,58,92,0.12);
+    }
+    .mes-card.activo {
+      border-color: #1a7a4a;
+      background: #f0fff4;
+    }
+    .mes-nombre { font-weight: 700; font-size: 1rem; color: #1a3a5c; }
+    .mes-anio { font-size: 0.8rem; color: #888; margin-top: 2px; }
+    .mes-icono { font-size: 1.6rem; margin-bottom: 6px; }
+
     .loading { text-align: center; padding: 40px; color: #888; font-size: 0.9rem; }
     .loading::before { content: "⏳ "; }
 
@@ -401,7 +432,10 @@
     <h1>MEPL — Formulario de Respuestas</h1>
     <span>Indaltec SA</span>
   </div>
-  <button class="btn-inicio" onclick="irInicio()" id="btn-inicio" style="display:none;">⌂ Inicio</button>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <button class="btn-inicio" onclick="volver()" id="btn-volver" style="display:none;">← Volver</button>
+    <button class="btn-inicio" onclick="irInicio()" id="btn-inicio" style="display:none;">⌂ Inicio</button>
+  </div>
 </header>
 
 <div class="container">
@@ -426,17 +460,23 @@ async function sbGet(tabla, params = {}) {
 }
 
 async function getColegios() {
-  const data = await sbGet("colegios_hojas", { select: "domicilio" });
+  const params = { select: "domicilio" };
+  if (estado.mes) params.mes = `eq.${estado.mes}`;
+  if (estado.anio) params.anio = `eq.${estado.anio}`;
+  const data = await sbGet("colegios_hojas", params);
   const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
   return { ok: true, colegios };
 }
 
 async function getHojas(domicilio) {
   // 1. Traer hojas del colegio
-  const data = await sbGet("colegios_hojas", {
+  const params = {
     select: "orden,orden_principal,texto_breve,fecha_fin",
     domicilio: `eq.${domicilio}`
-  });
+  };
+  if (estado.mes) params.mes = `eq.${estado.mes}`;
+  if (estado.anio) params.anio = `eq.${estado.anio}`;
+  const data = await sbGet("colegios_hojas", params);
 
   const hojas = {};
   for (const r of data) {
@@ -558,6 +598,7 @@ async function apiPost(body) {
 // ============================================================
 let estado = {
   paso: 0, modo: "", tipoSeleccionado: "",
+  mes: "", anio: "",
   domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
   fechaInicio: "", fechaFin: ""
@@ -566,9 +607,11 @@ let estado = {
 function render() {
   const app = document.getElementById("app");
 
-  // Mostrar botón inicio solo cuando no estamos en paso 0
+  // Mostrar botones de navegación según el paso
   const btnInicio = document.getElementById("btn-inicio");
+  const btnVolver = document.getElementById("btn-volver");
   if (btnInicio) btnInicio.style.display = estado.paso === 0 ? "none" : "block";
+  if (btnVolver) btnVolver.style.display = estado.paso <= 1 ? "none" : "block";
 
   if (estado.paso === 0) {
     app.innerHTML = "";
@@ -603,13 +646,67 @@ function render() {
 
 
 // ============================================================
-// PASO 0 — Elegir modo
+// PASO 0 — Elegir mes y modo
 // ============================================================
-function renderModo() {
+async function renderModo() {
   const app = document.getElementById("app");
+
+  // Si no hay mes seleccionado, mostrar selector de mes primero
+  if (!estado.mes) {
+    app.innerHTML = `<div class="card">
+      <h2>📅 Seleccioná el mes</h2>
+      <div id="contenido-meses" class="loading">Cargando meses...</div>
+    </div>`;
+
+    try {
+      // Traer meses disponibles de Supabase
+      const data = await sbGet("colegios_hojas", { select: "mes,anio" });
+      const mesesSet = new Set();
+      data.forEach(r => { if (r.mes && r.anio) mesesSet.add(`${r.mes}|${r.anio}`); });
+      const meses = [...mesesSet].sort((a, b) => {
+        const [ma, aa] = a.split("|");
+        const [mb, ab] = b.split("|");
+        const orden = ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO",
+                       "JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"];
+        return aa !== ab ? Number(aa) - Number(ab) : orden.indexOf(ma) - orden.indexOf(mb);
+      });
+
+      const iconosMes = {
+        "ENERO":"❄️","FEBRERO":"💝","MARZO":"🌸","ABRIL":"🌦️",
+        "MAYO":"🌿","JUNIO":"☀️","JULIO":"🏖️","AGOSTO":"🌻",
+        "SEPTIEMBRE":"🍂","OCTUBRE":"🎃","NOVIEMBRE":"🍁","DICIEMBRE":"🎄"
+      };
+
+      let html = `<div class="mes-grid">`;
+      meses.forEach(m => {
+        const [mes, anio] = m.split("|");
+        const icono = iconosMes[mes] || "📅";
+        html += `
+          <div class="mes-card" onclick="seleccionarMes('${mes}','${anio}')">
+            <div class="mes-icono">${icono}</div>
+            <div class="mes-nombre">${mes}</div>
+            <div class="mes-anio">${anio}</div>
+          </div>`;
+      });
+      html += `</div>`;
+      document.getElementById("contenido-meses").innerHTML = html;
+    } catch (e) {
+      document.getElementById("contenido-meses").innerHTML =
+        `<div class="error-msg">Error: ${e.message}</div>`;
+    }
+    return;
+  }
+
+  // Mes seleccionado — mostrar selector de modo
   app.innerHTML = `
     <div class="card">
-      <h2>¿Cómo querés buscar?</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #e8edf2;">
+        <h2 style="margin:0;border:none;padding:0;">¿Cómo querés buscar?</h2>
+        <span style="font-size:0.82rem;background:#e8edf2;padding:4px 12px;border-radius:20px;color:#555;">
+          📅 ${estado.mes} ${estado.anio}
+          <button onclick="cambiarMes()" style="background:none;border:none;cursor:pointer;color:#1a3a5c;font-size:0.78rem;margin-left:6px;">cambiar</button>
+        </span>
+      </div>
       <div class="modo-grid">
         <div class="modo-card" onclick="seleccionarModo('colegio')">
           <span class="modo-icono">🏫</span>
@@ -625,8 +722,23 @@ function renderModo() {
     </div>`;
 }
 
+function seleccionarMes(mes, anio) {
+  estado.mes = mes;
+  estado.anio = anio;
+  render();
+}
+
+function cambiarMes() {
+  estado.mes = "";
+  estado.anio = "";
+  render();
+}
+
 function irInicio() {
+  const mesActual = estado.mes;
+  const anioActual = estado.anio;
   estado = { paso: 0, modo: "", tipoSeleccionado: "",
+             mes: mesActual, anio: anioActual,
              domicilio: "", hojaSeleccionada: null,
              tareas: [], respuestas: {}, operario: "", jefe: "",
              fechaInicio: "", fechaFin: "" };
@@ -650,7 +762,10 @@ async function renderTipos() {
   </div>`;
 
   try {
-    const data = await sbGet("colegios_hojas", { select: "texto_breve" });
+    const tipoParams = { select: "texto_breve" };
+    if (estado.mes) tipoParams.mes = `eq.${estado.mes}`;
+    if (estado.anio) tipoParams.anio = `eq.${estado.anio}`;
+    const data = await sbGet("colegios_hojas", tipoParams);
     const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
 
     const iconos = {
@@ -705,10 +820,13 @@ async function renderColegiosPorTipo() {
 
   try {
     // Traer todos los colegios que tienen este tipo
-    const data = await sbGet("colegios_hojas", {
+    const tipoColParams = {
       select: "domicilio,orden,orden_principal,fecha_fin",
       texto_breve: `eq.${estado.tipoSeleccionado}`
-    });
+    };
+    if (estado.mes) tipoColParams.mes = `eq.${estado.mes}`;
+    if (estado.anio) tipoColParams.anio = `eq.${estado.anio}`;
+    const data = await sbGet("colegios_hojas", tipoColParams);
 
     // Agrupar por domicilio → orden principal
     const colegios = {};
