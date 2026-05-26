@@ -460,7 +460,7 @@ async function sbGet(tabla, params = {}) {
 }
 
 async function getColegios() {
-  const data = await sbGet("colegios_hojas", { select: "domicilio" });
+  const data = await sbGet("colegios_hojas", { select: "domicilio", mes: `eq.${estado.mes}` });
   const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
   return { ok: true, colegios };
 }
@@ -469,7 +469,8 @@ async function getHojas(domicilio) {
   // 1. Traer hojas del colegio
   const data = await sbGet("colegios_hojas", {
     select: "orden,orden_principal,texto_breve,fecha_fin",
-    domicilio: `eq.${domicilio}`
+    domicilio: `eq.${domicilio}`,
+    mes: `eq.${estado.mes}`
   });
 
   const hojas = {};
@@ -550,6 +551,7 @@ async function getTareas(ordenPpal, ordenesYaCalculadas) {
   const dataClaves = await sbGet("claves_tareas", {
     select: "orden,clave,texto_breve,descripcion,orden_fila",
     orden: `in.(${ordenes.join(",")})`,
+    mes: `eq.${estado.mes}`,
     order: "orden_fila.asc"
   });
 
@@ -591,7 +593,7 @@ async function apiPost(body) {
 // Estado
 // ============================================================
 let estado = {
-  paso: 0, modo: "", tipoSeleccionado: "",
+  paso: -1, modo: "", tipoSeleccionado: "", mes: "",
   domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
   fechaInicio: "", fechaFin: ""
@@ -603,8 +605,14 @@ function render() {
   // Mostrar botones de navegación según el paso
   const btnInicio = document.getElementById("btn-inicio");
   const btnVolver = document.getElementById("btn-volver");
-  if (btnInicio) btnInicio.style.display = estado.paso === 0 ? "none" : "block";
-  if (btnVolver) btnVolver.style.display = estado.paso <= 1 ? "none" : "block";
+  if (btnInicio) btnInicio.style.display = estado.paso <= -1 ? "none" : "block";
+  if (btnVolver) btnVolver.style.display = estado.paso <= 0 ? "none" : "block";
+
+  if (estado.paso === -1) {
+    app.innerHTML = "";
+    renderSelectorMes();
+    return;
+  }
 
   if (estado.paso === 0) {
     app.innerHTML = "";
@@ -639,6 +647,35 @@ function render() {
 
 
 // ============================================================
+// PASO -1 — Elegir mes
+// ============================================================
+function renderSelectorMes() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="card">
+      <h2>Seleccioná el período</h2>
+      <div class="mes-grid">
+        <div class="mes-card" onclick="seleccionarMes('Mayo')">
+          <div class="mes-icono">📅</div>
+          <div class="mes-nombre">Mayo</div>
+          <div class="mes-anio">2026</div>
+        </div>
+        <div class="mes-card" onclick="seleccionarMes('Junio')">
+          <div class="mes-icono">📅</div>
+          <div class="mes-nombre">Junio</div>
+          <div class="mes-anio">2026</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function seleccionarMes(mes) {
+  estado.mes = mes;
+  estado.paso = 0;
+  render();
+}
+
+// ============================================================
 // PASO 0 — Elegir modo
 // ============================================================
 function renderModo() {
@@ -662,7 +699,7 @@ function renderModo() {
 }
 
 function irInicio() {
-  estado = { paso: 0, modo: "", tipoSeleccionado: "",
+  estado = { paso: -1, modo: "", tipoSeleccionado: "", mes: "",
              domicilio: "", hojaSeleccionada: null,
              tareas: [], respuestas: {}, operario: "", jefe: "",
              fechaInicio: "", fechaFin: "" };
@@ -686,7 +723,7 @@ async function renderTipos() {
   </div>`;
 
   try {
-    const data = await sbGet("colegios_hojas", { select: "texto_breve" });
+    const data = await sbGet("colegios_hojas", { select: "texto_breve", mes: `eq.${estado.mes}` });
     const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
 
     const iconos = {
@@ -743,7 +780,8 @@ async function renderColegiosPorTipo() {
     // Traer todos los colegios que tienen este tipo
     const data = await sbGet("colegios_hojas", {
       select: "domicilio,orden,orden_principal,fecha_fin",
-      texto_breve: `eq.${estado.tipoSeleccionado}`
+      texto_breve: `eq.${estado.tipoSeleccionado}`,
+      mes: `eq.${estado.mes}`
     });
 
     // Agrupar por domicilio → orden principal
@@ -1176,16 +1214,15 @@ function renderConfirmacion() {
 
 function reiniciar() {
   if (estado.modo === "tipo") {
-    // Volver a la lista de colegios del mismo tipo
     estado.paso = 2;
     estado.hojaSeleccionada = null;
     estado.tareas = []; estado.respuestas = {};
     estado.operario = ""; estado.jefe = "";
     estado.fechaInicio = ""; estado.fechaFin = "";
   } else {
-    // Volver a las hojas del mismo colegio
     const domicilioActual = estado.domicilio;
-    estado = { paso: 2, modo: "colegio", tipoSeleccionado: "",
+    const mesActual = estado.mes;
+    estado = { paso: 2, modo: "colegio", tipoSeleccionado: "", mes: mesActual,
                domicilio: domicilioActual, hojaSeleccionada: null,
                tareas: [], respuestas: {}, operario: "", jefe: "",
                fechaInicio: "", fechaFin: "" };
@@ -1220,7 +1257,7 @@ function esc(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-estado.paso = 0;
+estado.paso = -1;
 render();
 </script>
 </body>
