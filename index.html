@@ -460,7 +460,7 @@ async function sbGet(tabla, params = {}) {
 }
 
 async function getColegios() {
-  const data = await sbGet("colegios_hojas", { select: "domicilio" });
+  const data = await sbGet("colegios_hojas", { select: "domicilio", mes: `eq.${estado.mes}` });
   const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
   return { ok: true, colegios };
 }
@@ -591,7 +591,7 @@ async function apiPost(body) {
 // Estado
 // ============================================================
 let estado = {
-  paso: 0, modo: "", tipoSeleccionado: "",
+  paso: -1, modo: "", tipoSeleccionado: "", mes: "",
   domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
   fechaInicio: "", fechaFin: ""
@@ -600,11 +600,16 @@ let estado = {
 function render() {
   const app = document.getElementById("app");
 
-  // Mostrar botones de navegación según el paso
   const btnInicio = document.getElementById("btn-inicio");
   const btnVolver = document.getElementById("btn-volver");
-  if (btnInicio) btnInicio.style.display = estado.paso === 0 ? "none" : "block";
-  if (btnVolver) btnVolver.style.display = estado.paso <= 1 ? "none" : "block";
+  if (btnInicio) btnInicio.style.display = estado.paso <= -1 ? "none" : "block";
+  if (btnVolver) btnVolver.style.display = estado.paso <= 0 ? "none" : "block";
+
+  if (estado.paso === -1) {
+    app.innerHTML = "";
+    renderSelectorMes();
+    return;
+  }
 
   if (estado.paso === 0) {
     app.innerHTML = "";
@@ -639,6 +644,35 @@ function render() {
 
 
 // ============================================================
+// PASO -1 — Elegir mes
+// ============================================================
+function renderSelectorMes() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="card">
+      <h2>Seleccioná el período</h2>
+      <div class="mes-grid">
+        <div class="mes-card" onclick="seleccionarMes('Mayo')">
+          <div class="mes-icono">📅</div>
+          <div class="mes-nombre">Mayo</div>
+          <div class="mes-anio">2026</div>
+        </div>
+        <div class="mes-card" onclick="seleccionarMes('Junio')">
+          <div class="mes-icono">📅</div>
+          <div class="mes-nombre">Junio</div>
+          <div class="mes-anio">2026</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function seleccionarMes(mes) {
+  estado.mes = mes;
+  estado.paso = 0;
+  render();
+}
+
+// ============================================================
 // PASO 0 — Elegir modo
 // ============================================================
 function renderModo() {
@@ -662,7 +696,7 @@ function renderModo() {
 }
 
 function irInicio() {
-  estado = { paso: 0, modo: "", tipoSeleccionado: "",
+  estado = { paso: -1, modo: "", tipoSeleccionado: "", mes: "",
              domicilio: "", hojaSeleccionada: null,
              tareas: [], respuestas: {}, operario: "", jefe: "",
              fechaInicio: "", fechaFin: "" };
@@ -999,10 +1033,8 @@ function renderFormularioTareas() {
   <div style="background:#1a3a5c;color:white;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <span style="font-size:0.75rem;opacity:0.8;">SAP N°</span>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <span style="font-size:0.75rem;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">MEPL &nbsp;|&nbsp; COMUNA 6</span>
-        <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${esc(mesAnio).toUpperCase()}</span>
-      </div>
+      <span style="font-size:0.75rem;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">MEPL &nbsp;|&nbsp; COMUNA 6</span>
+      <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${(estado.mes || "").toUpperCase()} 2026</span>
     </div>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">${esc(estado.hojaSeleccionada.ordenPpal)}</div>
     <div style="font-size:0.85rem;opacity:0.9;margin-bottom:10px;">📍 ${esc(estado.domicilio)}</div>
@@ -1219,7 +1251,7 @@ function esc(str) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-estado.paso = 0;
+estado.paso = -1;
 render();
 </script>
 </body>
