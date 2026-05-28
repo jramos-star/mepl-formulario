@@ -433,6 +433,7 @@
     <span>Indaltec SA</span>
   </div>
   <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <span id="header-mes" style="background:#e8a020;color:#1a1a1a;border-radius:20px;padding:4px 14px;font-size:0.82rem;font-weight:700;display:none;"></span>
     <button class="btn-inicio" onclick="volver()" id="btn-volver" style="display:none;">← Volver</button>
     <button class="btn-inicio" onclick="irInicio()" id="btn-inicio" style="display:none;">⌂ Inicio</button>
   </div>
@@ -621,11 +622,12 @@ function render() {
     ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
     : ["Colegio", "Hoja", "Respuestas", "Confirmación"];
 
-  let html = `<div class="paso-indicator">`;
+  let html = `<div class="paso-indicator" style="position:relative;">`;
   pasos.forEach((p, i) => {
     const cls = i + 1 === estado.paso ? "activo" : i + 1 < estado.paso ? "completo" : "";
     html += `<div class="paso ${cls}">${i + 1}. ${p}</div>`;
   });
+  html += `<span style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#e8a020;color:#1a1a1a;border-radius:20px;padding:2px 12px;font-size:0.75rem;font-weight:700;">${(estado.mes || "").toUpperCase()} 2026</span>`;
   html += `</div>`;
   app.innerHTML = html;
 
