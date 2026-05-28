@@ -729,7 +729,7 @@ async function renderTipos() {
   </div>`;
 
   try {
-    const data = await sbGet("colegios_hojas", { select: "texto_breve" });
+    const data = await sbGet("colegios_hojas", { select: "texto_breve", mes: `eq.${estado.mes}` });
     const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
 
     const iconos = {
@@ -786,7 +786,8 @@ async function renderColegiosPorTipo() {
     // Traer todos los colegios que tienen este tipo
     const data = await sbGet("colegios_hojas", {
       select: "domicilio,orden,orden_principal,fecha_fin",
-      texto_breve: `eq.${estado.tipoSeleccionado}`
+      texto_breve: `eq.${estado.tipoSeleccionado}`,
+      mes: `eq.${estado.mes}`
     });
 
     // Agrupar por domicilio → orden principal
