@@ -669,6 +669,11 @@ function renderSelectorMes() {
 function seleccionarMes(mes) {
   estado.mes = mes;
   estado.paso = 0;
+  const headerMes = document.getElementById("header-mes");
+  if (headerMes) {
+    headerMes.textContent = mes.toUpperCase() + " 2026";
+    headerMes.style.display = "inline";
+  }
   render();
 }
 
@@ -679,7 +684,10 @@ function renderModo() {
   const app = document.getElementById("app");
   app.innerHTML = `
     <div class="card">
-      <h2>¿Cómo querés buscar?</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #e8edf2;">
+        <h2 style="margin:0;padding:0;border:none;">¿Cómo querés buscar?</h2>
+        <span style="background:#e8a020;color:#1a1a1a;border-radius:20px;padding:4px 14px;font-size:0.82rem;font-weight:700;">${(estado.mes || "").toUpperCase()} 2026</span>
+      </div>
       <div class="modo-grid">
         <div class="modo-card" onclick="seleccionarModo('colegio')">
           <span class="modo-icono">🏫</span>
