@@ -467,10 +467,11 @@ async function getColegios() {
 }
 
 async function getHojas(domicilio) {
-  // 1. Traer hojas del colegio
+  // 1. Traer hojas del colegio filtradas por mes
   const data = await sbGet("colegios_hojas", {
     select: "orden,orden_principal,texto_breve,fecha_fin",
-    domicilio: `eq.${domicilio}`
+    domicilio: `eq.${domicilio}`,
+    mes: `eq.${estado.mes}`
   });
 
   const hojas = {};
@@ -499,7 +500,8 @@ async function getHojas(domicilio) {
     // Traer todas las claves de una sola vez
     const dataClaves = await sbGet("claves_tareas", {
       select: "orden",
-      orden: `in.(${todasOrdenes.join(",")})`
+      orden: `in.(${todasOrdenes.join(",")})`,
+      mes: `eq.${estado.mes}`
     });
     // Mapear cada orden hija a su orden principal y contar
     const ordenAPpal = {};
