@@ -622,12 +622,11 @@ function render() {
     ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
     : ["Colegio", "Hoja", "Respuestas", "Confirmación"];
 
-  let html = `<div class="paso-indicator" style="position:relative;">`;
+  let html = `<div class="paso-indicator">`;
   pasos.forEach((p, i) => {
     const cls = i + 1 === estado.paso ? "activo" : i + 1 < estado.paso ? "completo" : "";
     html += `<div class="paso ${cls}">${i + 1}. ${p}</div>`;
   });
-  html += `<span style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#e8a020;color:#1a1a1a;border-radius:20px;padding:2px 12px;font-size:0.75rem;font-weight:700;">${(estado.mes || "").toUpperCase()} 2026</span>`;
   html += `</div>`;
   app.innerHTML = html;
 
