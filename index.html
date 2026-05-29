@@ -566,13 +566,14 @@ async function getTareas(ordenPpal, ordenesYaCalculadas) {
 
 async function apiPost(body) {
   const filas = body.tareas.map(t => ({
-    mein:      t.mein,
-    orden_ref: t.ordenRef,
-    domicilio: t.domicilio,
-    tipo:      t.tipo,
-    respuesta: t.respuesta,
-    operario:  t.operario,
-    jefe:      t.jefe
+    mein:         t.mein,
+    orden_ref:    t.ordenRef,
+    domicilio:    t.domicilio,
+    tipo:         t.tipo,
+    respuesta:    t.respuesta,
+    operario:     t.operario,
+    jefe:         t.jefe,
+    observaciones: t.observaciones || ""
   }));
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/respuestas`, {
@@ -597,7 +598,7 @@ let estado = {
   paso: -1, modo: "", tipoSeleccionado: "", mes: "",
   domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
-  fechaInicio: "", fechaFin: ""
+  fechaInicio: "", fechaFin: "", observaciones: ""
 };
 
 function render() {
@@ -1092,6 +1093,11 @@ function renderFormularioTareas() {
 
   html += `
     <div class="card" style="margin-top:8px;">
+      <h2>Observaciones</h2>
+      <textarea id="inp-observaciones" placeholder="Observaciones generales (opcional)..." style="min-height:70px;"
+        oninput="estado.observaciones = this.value"></textarea>
+    </div>
+    <div class="card" style="margin-top:8px;">
       <h2>Datos del operario</h2>
       <div class="firmante">
         <div>
@@ -1183,7 +1189,8 @@ async function enviarRespuestas() {
   const tareas = Object.values(tareasPorMEIN).map(m => ({
     mein: m.mein, ordenRef: m.ordenRef, domicilio: m.domicilio,
     tipo: m.tipo, respuesta: m.respuestas.join("||"),
-    operario: estado.operario, jefe: estado.jefe
+    operario: estado.operario, jefe: estado.jefe,
+    observaciones: estado.observaciones || ""
   }));
 
   const btn = document.querySelector(".btn-success");
