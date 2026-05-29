@@ -635,12 +635,12 @@ function render() {
   if (estado.modo === "tipo") {
     if      (estado.paso === 1) renderTipos();
     else if (estado.paso === 2) renderColegiosPorTipo();
-    else if (estado.paso === 3) renderFormularioTareas();
+    else if (estado.paso === 3) { if (estado.tareas && estado.tareas.length > 0) renderFormularioTareas(); }
     else if (estado.paso === 4) renderConfirmacion();
   } else {
     if      (estado.paso === 1) renderColegios();
     else if (estado.paso === 2) renderHojas();
-    else if (estado.paso === 3) renderFormularioTareas();
+    else if (estado.paso === 3) { if (estado.tareas && estado.tareas.length > 0) renderFormularioTareas(); }
     else if (estado.paso === 4) renderConfirmacion();
   }
 }
