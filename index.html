@@ -111,6 +111,11 @@
     .btn-success:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-back { background: #e8edf2; color: #444; margin-right: 8px; }
     .btn-back:hover { background: #d0d7de; }
+    .btn-warning { background: #e8a020; color: #1a1a1a; }
+    .btn-warning:hover { background: #d4901a; }
+    .btn-warning:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { background: #c0392b; color: white; }
+    .btn-danger:hover { background: #a93226; }
 
     .hoja-item {
       border: 1px solid #d0d7de;
@@ -125,7 +130,6 @@
     }
     .hoja-item:hover { border-color: #1a3a5c; background: #f0f5ff; }
 
-    /* Hoja bloqueada */
     .hoja-item.realizada {
       background: #f5f5f5;
       cursor: not-allowed;
@@ -148,11 +152,8 @@
       font-size: 0.78rem;
       white-space: nowrap;
     }
-    .badge-realizada {
-      background: #d4edda;
-      color: #1a7a4a;
-      font-weight: 600;
-    }
+    .badge-realizada { background: #d4edda; color: #1a7a4a; font-weight: 600; }
+    .badge-pendiente-mein { background: #fff3cd; color: #856404; font-weight: 600; }
 
     .tarea-card {
       border: 1px solid #d0d7de;
@@ -205,9 +206,6 @@
     .opcion-btn.selected-na { background: #888; color: white; border-color: #888; }
     .opcion-btn.selected-informe { background: #1a6a8a; color: white; border-color: #1a6a8a; }
 
-
-
-    /* Cards de colegios — paso 1 */
     .colegios-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -248,16 +246,8 @@
     .colegio-card:hover::before { opacity: 1; }
     .colegio-card:active { transform: translateY(0); }
 
-    .colegio-icono {
-      font-size: 1.4rem;
-      margin-bottom: 2px;
-    }
-    .colegio-nombre {
-      font-weight: 700;
-      font-size: 0.88rem;
-      color: #1a3a5c;
-      line-height: 1.3;
-    }
+    .colegio-icono { font-size: 1.4rem; margin-bottom: 2px; }
+    .colegio-nombre { font-weight: 700; font-size: 0.88rem; color: #1a3a5c; line-height: 1.3; }
     .colegio-flecha {
       position: absolute;
       right: 12px; top: 50%;
@@ -268,14 +258,8 @@
     }
     .colegio-card:hover .colegio-flecha { color: #1a3a5c; right: 9px; }
 
-    .buscar-colegio-wrap {
-      position: relative;
-      margin-bottom: 16px;
-    }
-    .buscar-colegio-wrap input {
-      padding-left: 36px;
-      font-size: 0.92rem;
-    }
+    .buscar-colegio-wrap { position: relative; margin-bottom: 16px; }
+    .buscar-colegio-wrap input { padding-left: 36px; font-size: 0.92rem; }
     .buscar-icon {
       position: absolute;
       left: 11px; top: 50%;
@@ -285,8 +269,6 @@
       pointer-events: none;
     }
 
-
-    /* Paso 0 — modo de búsqueda */
     .modo-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -318,7 +300,6 @@
     .modo-titulo { font-weight: 700; font-size: 1rem; color: #1a3a5c; }
     .modo-desc { font-size: 0.8rem; color: #888; line-height: 1.4; }
 
-    /* Tipos de tarea — paso por tipo */
     .tipos-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -347,7 +328,6 @@
     }
     .tipo-card .tipo-icono { font-size: 1.3rem; display: block; margin-bottom: 4px; }
 
-    /* Lista de colegios por tipo */
     .colegio-tipo-item {
       border: 1px solid #d0d7de;
       border-radius: 8px;
@@ -367,8 +347,6 @@
     }
     .colegio-tipo-item.realizada:hover { border-color: #d0d7de; background: #f5f5f5; }
 
-
-    /* Selector de mes */
     .mes-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -390,10 +368,7 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(26,58,92,0.12);
     }
-    .mes-card.activo {
-      border-color: #1a7a4a;
-      background: #f0fff4;
-    }
+    .mes-card.activo { border-color: #1a7a4a; background: #f0fff4; }
     .mes-nombre { font-weight: 700; font-size: 1rem; color: #1a3a5c; }
     .mes-anio { font-size: 0.8rem; color: #888; margin-top: 2px; }
     .mes-icono { font-size: 1.6rem; margin-bottom: 6px; }
@@ -438,6 +413,108 @@
     @media (max-width: 480px) { .firmante { grid-template-columns: 1fr; } }
 
     .contador { font-size: 0.78rem; color: #888; float: right; }
+
+    /* ── ADMIN ── */
+    .admin-bar {
+      background: #2d1a5c;
+      color: white;
+      padding: 8px 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .admin-bar span { opacity: 0.7; }
+    .admin-bar strong { color: #e8a020; }
+
+    .admin-colegio-row {
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .admin-colegio-row.sin-mein { border-color: #e8a020; background: #fffbf0; }
+    .admin-colegio-row.con-mein { border-color: #b7ebc8; background: #f0fff4; }
+    .admin-colegio-row.encolada { border-color: #b8d4f8; background: #f0f5ff; }
+    .admin-colegio-row.error-mein { border-color: #ffcccc; background: #fff0f0; }
+
+    .admin-col-info { flex: 1; min-width: 200px; }
+    .admin-col-nombre { font-weight: 700; font-size: 0.9rem; color: #1a3a5c; }
+    .admin-col-detalle { font-size: 0.78rem; color: #888; margin-top: 3px; }
+    .admin-col-acciones { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    .btn-sm {
+      padding: 5px 12px;
+      border-radius: 5px;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-sm:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm-warning { background: #e8a020; color: #1a1a1a; }
+    .btn-sm-warning:hover:not(:disabled) { background: #d4901a; }
+    .btn-sm-success { background: #1a7a4a; color: white; }
+    .btn-sm-success:hover:not(:disabled) { background: #22a060; }
+    .btn-sm-danger  { background: #c0392b; color: white; }
+    .btn-sm-danger:hover:not(:disabled)  { background: #a93226; }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .admin-stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .admin-stat-num { font-size: 1.8rem; font-weight: 700; color: #1a3a5c; }
+    .admin-stat-label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+
+    .admin-filtros {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .filtro-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid #d0d7de;
+      background: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filtro-btn.activo { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+    .filtro-btn:hover:not(.activo) { border-color: #1a3a5c; background: #f0f5ff; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: #1a3a5c;
+      color: white;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 9999;
+      transition: opacity 0.4s;
+    }
+    .toast.ok  { background: #1a7a4a; }
+    .toast.err { background: #c0392b; }
   </style>
 </head>
 <body>
@@ -454,27 +531,99 @@
   </div>
 </header>
 
+<!-- Barra admin solo visible con ?admin=true -->
+<div class="admin-bar" id="admin-bar" style="display:none;">
+  <strong>⚙ MODO ADMIN</strong>
+  <span>|</span>
+  <span>Panel de creación de MEINs</span>
+  <button class="btn-sm btn-sm-warning" style="margin-left:auto;" onclick="irAdmin()">Abrir panel MEINs</button>
+</div>
+
 <div class="container">
   <div id="app"></div>
 </div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;" class="toast"></div>
 
 <script>
 const SUPABASE_URL = "https://zynvptlesftdpyijxvpv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_a5BtY5K2O8w2rPBlIeKRUg_u6z478MX";
 
+// ── detectar modo admin ──────────────────────────────────────
+const IS_ADMIN = new URLSearchParams(window.location.search).get("admin") === "true";
+if (IS_ADMIN) document.getElementById("admin-bar").style.display = "flex";
+
+// ── helpers Supabase ─────────────────────────────────────────
 async function sbGet(tabla, params = {}) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/${tabla}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   const res = await fetch(url.toString(), {
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`
-    }
+    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
   });
   if (!res.ok) throw new Error("Error al leer datos: " + res.status);
   return res.json();
 }
 
+async function sbPost(tabla, body, preferHeader = "return=minimal") {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Prefer": preferHeader
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return preferHeader.includes("representation") ? res.json() : { ok: true };
+}
+
+async function sbPatch(tabla, params, body) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${tabla}`);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return { ok: true };
+}
+
+async function sbDelete(tabla, params) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${tabla}`);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    method: "DELETE",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return { ok: true };
+}
+
+function showToast(msg, tipo = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + tipo;
+  t.style.display = "block";
+  t.style.opacity = "1";
+  setTimeout(() => {
+    t.style.opacity = "0";
+    setTimeout(() => { t.style.display = "none"; }, 400);
+  }, 3000);
+}
+
+// ── datos ────────────────────────────────────────────────────
 async function getColegios() {
   const data = await sbGet("colegios_hojas", { select: "domicilio", mes: `eq.${estado.mes}` });
   const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
@@ -482,7 +631,6 @@ async function getColegios() {
 }
 
 async function getHojas(domicilio) {
-  // 1. Traer hojas del colegio filtradas por mes
   const data = await sbGet("colegios_hojas", {
     select: "orden,orden_principal,texto_breve,fecha_fin",
     domicilio: `eq.${domicilio}`,
@@ -492,15 +640,13 @@ async function getHojas(domicilio) {
   const hojas = {};
   for (const r of data) {
     const key = r.orden_principal && r.orden_principal !== r.orden
-                  ? r.orden_principal
-                  : r.orden;
+                  ? r.orden_principal : r.orden;
     if (!hojas[key]) {
       hojas[key] = { ordenPpal: key, tipo: r.texto_breve, fechaFin: r.fecha_fin, ordenes: [] };
     }
     if (!hojas[key].ordenes.includes(r.orden)) hojas[key].ordenes.push(r.orden);
   }
 
-  // 2. Ver cuáles ya tienen respuesta en Supabase (filtrar por domicilio)
   let ordenesRespondidas = new Set();
   const respData = await sbGet("respuestas", {
     select: "orden_ref",
@@ -508,17 +654,14 @@ async function getHojas(domicilio) {
   });
   respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
 
-  // 3. Contar claves reales de claves_tareas para cada grupo de órdenes
   const todasOrdenes = Object.values(hojas).flatMap(h => h.ordenes);
   let conteoClaves = {};
   if (todasOrdenes.length > 0) {
-    // Traer todas las claves de una sola vez
     const dataClaves = await sbGet("claves_tareas", {
       select: "orden",
       orden: `in.(${todasOrdenes.join(",")})`,
       mes: `eq.${estado.mes}`
     });
-    // Mapear cada orden hija a su orden principal y contar
     const ordenAPpal = {};
     Object.values(hojas).forEach(h => {
       h.ordenes.forEach(o => { ordenAPpal[String(o)] = String(h.ordenPpal); });
@@ -581,13 +724,13 @@ async function getTareas(ordenPpal, ordenesYaCalculadas) {
 
 async function apiPost(body) {
   const filas = body.tareas.map(t => ({
-    mein:         t.mein,
-    orden_ref:    t.ordenRef,
-    domicilio:    t.domicilio,
-    tipo:         t.tipo,
-    respuesta:    t.respuesta,
-    operario:     t.operario,
-    jefe:         t.jefe,
+    mein:          t.mein,
+    orden_ref:     t.ordenRef,
+    domicilio:     t.domicilio,
+    tipo:          t.tipo,
+    respuesta:     t.respuesta,
+    operario:      t.operario,
+    jefe:          t.jefe,
     observaciones: t.observaciones || ""
   }));
 
@@ -613,28 +756,25 @@ let estado = {
   paso: -1, modo: "", tipoSeleccionado: "", mes: "",
   domicilio: "", hojaSeleccionada: null,
   tareas: [], respuestas: {}, operario: "", jefe: "",
-  fechaInicio: "", fechaFin: "", observaciones: ""
+  fechaInicio: "", fechaFin: "", observaciones: "",
+  vista: "formulario"   // "formulario" | "admin"
 };
 
 function render() {
   const app = document.getElementById("app");
+
+  if (estado.vista === "admin") {
+    renderAdmin();
+    return;
+  }
 
   const btnInicio = document.getElementById("btn-inicio");
   const btnVolver = document.getElementById("btn-volver");
   if (btnInicio) btnInicio.style.display = estado.paso <= -1 ? "none" : "block";
   if (btnVolver) btnVolver.style.display = estado.paso <= 0 ? "none" : "block";
 
-  if (estado.paso === -1) {
-    app.innerHTML = "";
-    renderSelectorMes();
-    return;
-  }
-
-  if (estado.paso === 0) {
-    app.innerHTML = "";
-    renderModo();
-    return;
-  }
+  if (estado.paso === -1) { app.innerHTML = ""; renderSelectorMes(); return; }
+  if (estado.paso === 0)  { app.innerHTML = ""; renderModo(); return; }
 
   const pasos = estado.modo === "tipo"
     ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
@@ -658,6 +798,292 @@ function render() {
     else if (estado.paso === 2) renderHojas();
     else if (estado.paso === 3) { if (estado.tareas && estado.tareas.length > 0) renderFormularioTareas(); }
     else if (estado.paso === 4) renderConfirmacion();
+  }
+}
+
+// ============================================================
+// ADMIN — Panel de MEINs
+// ============================================================
+function irAdmin() {
+  estado.vista = "admin";
+  document.getElementById("btn-inicio").style.display = "block";
+  document.getElementById("btn-volver").style.display = "none";
+  render();
+}
+
+let adminMes = "Junio";
+let adminFiltro = "todos";
+let adminDatos = [];
+
+async function renderAdmin() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="card">
+      <h2>⚙ Panel de MEINs — Creación masiva</h2>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+        <label style="margin:0;font-weight:600;">Mes:</label>
+        <select id="admin-mes-sel" style="width:auto;" onchange="adminMes=this.value;cargarAdmin()">
+          <option value="Mayo"  ${adminMes==="Mayo"  ?"selected":""}>Mayo 2026</option>
+          <option value="Junio" ${adminMes==="Junio" ?"selected":""}>Junio 2026</option>
+        </select>
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:0.85rem;" onclick="cargarAdmin()">↺ Actualizar</button>
+        <button class="btn btn-warning" style="padding:8px 16px;font-size:0.85rem;" onclick="encolarTodos()">⚡ Encolar todos los pendientes</button>
+      </div>
+
+      <div id="admin-stats" class="admin-stats"></div>
+      <div class="admin-filtros" id="admin-filtros"></div>
+      <div id="admin-lista"><div class="loading">Cargando colegios...</div></div>
+    </div>`;
+
+  await cargarAdmin();
+}
+
+async function cargarAdmin() {
+  const listaEl   = document.getElementById("admin-lista");
+  const statsEl   = document.getElementById("admin-stats");
+  const filtrosEl = document.getElementById("admin-filtros");
+  if (!listaEl) return;
+  listaEl.innerHTML = `<div class="loading">Cargando...</div>`;
+
+  try {
+    // 1. Traer todos los colegios del mes
+    const dataColegios = await sbGet("colegios_hojas", {
+      select: "domicilio,orden,orden_principal,texto_breve",
+      mes: `eq.${adminMes}`
+    });
+
+    // Agrupar por domicilio → lista de órdenes principales únicas
+    const colegiosMap = {};
+    for (const r of dataColegios) {
+      const dom  = r.domicilio;
+      const ppal = r.orden_principal && r.orden_principal !== r.orden
+                    ? r.orden_principal : r.orden;
+      if (!colegiosMap[dom]) colegiosMap[dom] = { domicilio: dom, ordenes: new Set() };
+      colegiosMap[dom].ordenes.add(ppal);
+    }
+
+    // 2. Traer MEINs ya existentes en colegios_hojas
+    //    Una MEIN existe si orden != orden_principal (fue creada como sub-orden)
+    const meinsExistentes = new Set();
+    dataColegios.forEach(r => {
+      if (r.orden_principal && r.orden_principal !== r.orden) {
+        meinsExistentes.add(String(r.orden_principal));
+      }
+    });
+
+    // 3. Traer pendientes en meins_pendientes
+    const pendientesData = await sbGet("meins_pendientes", {
+      select: "*",
+      mes: `eq.${adminMes}`
+    });
+    const pendientesMap = {};
+    pendientesData.forEach(p => {
+      if (!pendientesMap[p.orden]) pendientesMap[p.orden] = [];
+      pendientesMap[p.orden].push(p);
+    });
+
+    // 4. Construir lista de colegios con estado
+    adminDatos = Object.values(colegiosMap).map(c => {
+      const ordenesList = [...c.ordenes];
+      // Revisar si alguna orden principal ya tiene MEIN
+      const tieneMein = ordenesList.some(o => meinsExistentes.has(String(o)));
+
+      // Estado de la cola
+      let estadoCola = null;
+      let colaDatos  = null;
+      for (const o of ordenesList) {
+        if (pendientesMap[o] && pendientesMap[o].length > 0) {
+          colaDatos  = pendientesMap[o][pendientesMap[o].length - 1];
+          estadoCola = colaDatos.estado;
+          break;
+        }
+      }
+
+      return {
+        domicilio: c.domicilio,
+        ordenes:   ordenesList,
+        tieneMein,
+        estadoCola,
+        colaDatos
+      };
+    }).sort((a, b) => a.domicilio.localeCompare(b.domicilio));
+
+    // Stats
+    const total      = adminDatos.length;
+    const conMein    = adminDatos.filter(c => c.tieneMein).length;
+    const sinMein    = adminDatos.filter(c => !c.tieneMein && !c.estadoCola).length;
+    const encoladas  = adminDatos.filter(c => c.estadoCola === "pendiente" || c.estadoCola === "procesando").length;
+    const creadas    = adminDatos.filter(c => c.estadoCola === "creada").length;
+    const conError   = adminDatos.filter(c => c.estadoCola === "error").length;
+
+    if (statsEl) statsEl.innerHTML = `
+      <div class="admin-stat-card"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">Total colegios</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:#1a7a4a">${conMein}</div><div class="admin-stat-label">Con MEIN</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:#e8a020">${sinMein}</div><div class="admin-stat-label">Sin MEIN</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:#1a3a5c">${encoladas}</div><div class="admin-stat-label">En cola</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:#c0392b">${conError}</div><div class="admin-stat-label">Con error</div></div>`;
+
+    if (filtrosEl) filtrosEl.innerHTML = `
+      <span style="font-size:0.82rem;color:#666;">Filtrar:</span>
+      ${[["todos","Todos"],["sin-mein","Sin MEIN"],["encolada","En cola"],["con-mein","Con MEIN"],["error","Error"]]
+        .map(([v,l]) => `<button class="filtro-btn ${adminFiltro===v?"activo":""}" onclick="setFiltroAdmin('${v}')">${l}</button>`).join("")}`;
+
+    renderListaAdmin();
+
+  } catch (e) {
+    listaEl.innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+function setFiltroAdmin(f) {
+  adminFiltro = f;
+  document.querySelectorAll(".filtro-btn").forEach(b => {
+    b.classList.toggle("activo", b.textContent.toLowerCase().includes(f === "todos" ? "todos" : f));
+  });
+  renderListaAdmin();
+}
+
+function renderListaAdmin() {
+  const listaEl = document.getElementById("admin-lista");
+  if (!listaEl) return;
+
+  let datos = adminDatos;
+  if (adminFiltro === "sin-mein")  datos = datos.filter(c => !c.tieneMein && !c.estadoCola);
+  if (adminFiltro === "encolada")  datos = datos.filter(c => c.estadoCola === "pendiente" || c.estadoCola === "procesando");
+  if (adminFiltro === "con-mein")  datos = datos.filter(c => c.tieneMein);
+  if (adminFiltro === "error")     datos = datos.filter(c => c.estadoCola === "error");
+
+  if (datos.length === 0) {
+    listaEl.innerHTML = `<div style="text-align:center;padding:30px;color:#888;">No hay colegios en esta categoría.</div>`;
+    return;
+  }
+
+  let html = "";
+  datos.forEach(c => {
+    let rowClass = "";
+    let badge    = "";
+    let acciones = "";
+
+    if (c.tieneMein) {
+      rowClass = "con-mein";
+      badge    = `<span class="hoja-badge badge-realizada">✓ MEIN creada</span>`;
+      acciones = `<button class="btn-sm btn-sm-danger" onclick="cancelarMein('${esc(c.domicilio)}', '${c.ordenes[0]}')">✕ Quitar de cola</button>`;
+    } else if (c.estadoCola === "pendiente") {
+      rowClass = "encolada";
+      badge    = `<span class="hoja-badge badge-pendiente-mein">⏳ En cola</span>`;
+      acciones = `<button class="btn-sm btn-sm-danger" onclick="cancelarMein('${esc(c.domicilio)}', '${c.ordenes[0]}')">✕ Cancelar</button>`;
+    } else if (c.estadoCola === "procesando") {
+      rowClass = "encolada";
+      badge    = `<span class="hoja-badge" style="background:#d0e8ff;color:#1a3a5c;">⚙ Procesando...</span>`;
+      acciones = "";
+    } else if (c.estadoCola === "creada") {
+      rowClass = "con-mein";
+      badge    = `<span class="hoja-badge badge-realizada">✓ MEIN: ${esc(c.colaDatos?.mein_creada || "")}</span>`;
+      acciones = "";
+    } else if (c.estadoCola === "error") {
+      rowClass = "error-mein";
+      badge    = `<span class="hoja-badge" style="background:#ffcccc;color:#c00;">✗ Error</span>`;
+      acciones = `
+        <button class="btn-sm btn-sm-warning" onclick="encolarColegio('${esc(c.domicilio)}', ${JSON.stringify(c.ordenes)})">↺ Reintentar</button>
+        <button class="btn-sm btn-sm-danger"  onclick="cancelarMein('${esc(c.domicilio)}', '${c.ordenes[0]}')">✕ Limpiar</button>`;
+    } else {
+      rowClass = "sin-mein";
+      badge    = `<span class="hoja-badge badge-pendiente-mein">⚠ Sin MEIN</span>`;
+      acciones = `<button class="btn-sm btn-sm-warning" onclick="encolarColegio('${esc(c.domicilio)}', ${JSON.stringify(c.ordenes)})">+ Encolar MEIN</button>`;
+    }
+
+    const errorTxt = c.estadoCola === "error" && c.colaDatos?.error_msg
+      ? `<div style="color:#c00;font-size:0.74rem;margin-top:3px;">Error: ${esc(c.colaDatos.error_msg)}</div>`
+      : "";
+
+    html += `
+      <div class="admin-colegio-row ${rowClass}">
+        <div class="admin-col-info">
+          <div class="admin-col-nombre">📍 ${esc(c.domicilio)}</div>
+          <div class="admin-col-detalle">Órdenes: ${c.ordenes.join(", ")}</div>
+          ${errorTxt}
+        </div>
+        <div class="admin-col-acciones">
+          ${badge}
+          ${acciones}
+        </div>
+      </div>`;
+  });
+
+  listaEl.innerHTML = html;
+}
+
+async function encolarColegio(domicilio, ordenes) {
+  // Buscar datos completos del colegio en adminDatos
+  const colegio = adminDatos.find(c => c.domicilio === domicilio);
+  if (!colegio) return;
+
+  // Cancelar cualquier pendiente/error anterior para este colegio
+  await cancelarMeinSilencioso(ordenes);
+
+  // Encolar cada orden principal
+  try {
+    const filas = ordenes.map(o => ({
+      orden:     o,
+      domicilio: domicilio,
+      tipo:      "MEIN",
+      mes:       adminMes,
+      estado:    "pendiente"
+    }));
+    await sbPost("meins_pendientes", filas);
+    showToast(`✓ ${domicilio} encolada`, "ok");
+    await cargarAdmin();
+  } catch (e) {
+    showToast("Error al encolar: " + e.message, "err");
+  }
+}
+
+async function cancelarMein(domicilio, orden) {
+  if (!confirm(`¿Cancelar/limpiar la cola de MEINs para ${domicilio}?`)) return;
+  const colegio = adminDatos.find(c => c.domicilio === domicilio);
+  const ordenes = colegio ? colegio.ordenes : [orden];
+  await cancelarMeinSilencioso(ordenes);
+  showToast("Cola limpiada", "ok");
+  await cargarAdmin();
+}
+
+async function cancelarMeinSilencioso(ordenes) {
+  for (const o of ordenes) {
+    try {
+      await sbDelete("meins_pendientes", {
+        orden: `eq.${o}`,
+        mes:   `eq.${adminMes}`,
+        estado: `in.(pendiente,error,creada)`
+      });
+    } catch (_) {}
+  }
+}
+
+async function encolarTodos() {
+  const sinMein = adminDatos.filter(c => !c.tieneMein && !c.estadoCola);
+  if (sinMein.length === 0) {
+    showToast("No hay colegios sin MEIN para encolar", "");
+    return;
+  }
+  if (!confirm(`¿Encolar ${sinMein.length} colegio(s) sin MEIN en ${adminMes} 2026?`)) return;
+
+  let filas = [];
+  sinMein.forEach(c => {
+    c.ordenes.forEach(o => {
+      filas.push({ orden: o, domicilio: c.domicilio, tipo: "MEIN", mes: adminMes, estado: "pendiente" });
+    });
+  });
+
+  try {
+    // Insertar en batches de 50
+    for (let i = 0; i < filas.length; i += 50) {
+      await sbPost("meins_pendientes", filas.slice(i, i + 50));
+    }
+    showToast(`✓ ${sinMein.length} colegio(s) encolados`, "ok");
+    await cargarAdmin();
+  } catch (e) {
+    showToast("Error: " + e.message, "err");
   }
 }
 
@@ -688,6 +1114,7 @@ function renderSelectorMes() {
 function seleccionarMes(mes) {
   estado.mes = mes;
   estado.paso = 0;
+  adminMes = mes;
   const headerMes = document.getElementById("header-mes");
   if (headerMes) {
     headerMes.textContent = mes.toUpperCase() + " 2026";
@@ -701,6 +1128,13 @@ function seleccionarMes(mes) {
 // ============================================================
 function renderModo() {
   const app = document.getElementById("app");
+  let adminBtn = IS_ADMIN ? `
+    <div class="modo-card" onclick="irAdmin()" style="border-color:#2d1a5c;">
+      <span class="modo-icono">⚙</span>
+      <span class="modo-titulo" style="color:#2d1a5c;">Panel MEINs</span>
+      <span class="modo-desc">Crear y gestionar MEINs por colegio (solo admin)</span>
+    </div>` : "";
+
   app.innerHTML = `
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #e8edf2;">
@@ -718,15 +1152,21 @@ function renderModo() {
           <span class="modo-titulo">Por tipo de tarea</span>
           <span class="modo-desc">Elegís el tipo (Saneamiento, Gas, etc.) y ves todos los colegios</span>
         </div>
+        ${adminBtn}
       </div>
     </div>`;
 }
 
 function irInicio() {
-  estado = { paso: -1, modo: "", tipoSeleccionado: "", mes: "",
-             domicilio: "", hojaSeleccionada: null,
-             tareas: [], respuestas: {}, operario: "", jefe: "",
-             fechaInicio: "", fechaFin: "" };
+  estado = {
+    paso: -1, modo: "", tipoSeleccionado: "", mes: "",
+    domicilio: "", hojaSeleccionada: null,
+    tareas: [], respuestas: {}, operario: "", jefe: "",
+    fechaInicio: "", fechaFin: "", observaciones: "",
+    vista: "formulario"
+  };
+  const headerMes = document.getElementById("header-mes");
+  if (headerMes) headerMes.style.display = "none";
   render();
 }
 
@@ -737,7 +1177,7 @@ function seleccionarModo(modo) {
 }
 
 // ============================================================
-// MODO TIPO — Paso 1: Elegir tipo
+// MODO TIPO — Paso 1
 // ============================================================
 async function renderTipos() {
   const app = document.getElementById("app");
@@ -751,36 +1191,28 @@ async function renderTipos() {
     const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
 
     const iconos = {
-      "GAS": "🔥", "AGUA": "💧", "ELECTRICA": "⚡", "ELECTR": "⚡",
-      "SANEAMIENTO": "🧹", "ESTRUCTURA": "🏗️", "MAMPOSTERIA": "🧱",
-      "CALEFACCION": "♨️", "INCENDIO": "🚒", "PLUVIALES": "🌧️",
-      "CLOACAL": "🚰", "BAJA TENSION": "🔌", "MOBILIARIO": "🪑",
-      "CUBIERTA": "🏠", "PREDIO": "🌳", "TERMINACIONES": "🎨",
-      "CERRAMIENTO": "🚪", "ELEVADORA": "🛗", "PLATAFORMA": "🛗"
+      "GAS":"🔥","AGUA":"💧","ELECTRICA":"⚡","ELECTR":"⚡",
+      "SANEAMIENTO":"🧹","ESTRUCTURA":"🏗️","MAMPOSTERIA":"🧱",
+      "CALEFACCION":"♨️","INCENDIO":"🚒","PLUVIALES":"🌧️",
+      "CLOACAL":"🚰","BAJA TENSION":"🔌","MOBILIARIO":"🪑",
+      "CUBIERTA":"🏠","PREDIO":"🌳","TERMINACIONES":"🎨",
+      "CERRAMIENTO":"🚪","ELEVADORA":"🛗","PLATAFORMA":"🛗"
     };
-
     function getIcono(tipo) {
       const t = tipo.toUpperCase();
-      for (const [k, v] of Object.entries(iconos)) {
-        if (t.includes(k)) return v;
-      }
+      for (const [k, v] of Object.entries(iconos)) if (t.includes(k)) return v;
       return "📋";
     }
 
     let html = `<div class="tipos-grid">`;
     tipos.forEach(t => {
-      html += `
-        <div class="tipo-card" onclick="seleccionarTipo('${esc(t)}')">
-          <span class="tipo-icono">${getIcono(t)}</span>
-          ${esc(t)}
-        </div>`;
+      html += `<div class="tipo-card" onclick="seleccionarTipo('${esc(t)}')">
+        <span class="tipo-icono">${getIcono(t)}</span>${esc(t)}</div>`;
     });
-    html += `</div>`;
-    html += `<br><button class="btn btn-back" onclick="volverModo()">← Cambiar modo</button>`;
+    html += `</div><br><button class="btn btn-back" onclick="volverModo()">← Cambiar modo</button>`;
     document.getElementById("contenido-tipos").innerHTML = html;
   } catch (e) {
-    document.getElementById("contenido-tipos").innerHTML =
-      `<div class="error-msg">Error: ${e.message}</div>`;
+    document.getElementById("contenido-tipos").innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
   }
 }
 
@@ -791,7 +1223,7 @@ function seleccionarTipo(tipo) {
 }
 
 // ============================================================
-// MODO TIPO — Paso 2: Ver colegios con ese tipo
+// MODO TIPO — Paso 2
 // ============================================================
 async function renderColegiosPorTipo() {
   const app = document.getElementById("app");
@@ -801,26 +1233,20 @@ async function renderColegiosPorTipo() {
   </div>`;
 
   try {
-    // Traer todos los colegios que tienen este tipo
     const data = await sbGet("colegios_hojas", {
       select: "domicilio,orden,orden_principal,fecha_fin",
       texto_breve: `eq.${estado.tipoSeleccionado}`,
       mes: `eq.${estado.mes}`
     });
 
-    // Agrupar por domicilio → orden principal
     const colegios = {};
     for (const r of data) {
-      const dom = r.domicilio;
-      const ppal = r.orden_principal && r.orden_principal !== r.orden
-                    ? r.orden_principal : r.orden;
-      if (!colegios[dom]) {
-        colegios[dom] = { domicilio: dom, ordenPpal: ppal, fechaFin: r.fecha_fin, ordenes: [] };
-      }
+      const dom  = r.domicilio;
+      const ppal = r.orden_principal && r.orden_principal !== r.orden ? r.orden_principal : r.orden;
+      if (!colegios[dom]) colegios[dom] = { domicilio: dom, ordenPpal: ppal, fechaFin: r.fecha_fin, ordenes: [] };
       if (!colegios[dom].ordenes.includes(r.orden)) colegios[dom].ordenes.push(r.orden);
     }
 
-    // Ver cuáles ya están respondidas
     const ordenesAll = Object.values(colegios).map(c => c.ordenPpal);
     let respondidas = new Set();
     if (ordenesAll.length > 0) {
@@ -831,7 +1257,6 @@ async function renderColegiosPorTipo() {
       respData.forEach(r => respondidas.add(String(r.orden_ref)));
     }
 
-    // Contar tareas reales por orden
     const todasOrdenes = Object.values(colegios).flatMap(c => c.ordenes);
     let conteoClaves = {};
     if (todasOrdenes.length > 0) {
@@ -866,23 +1291,15 @@ async function renderColegiosPorTipo() {
 
     lista.forEach(c => {
       if (c.realizada) {
-        html += `
-          <div class="colegio-tipo-item realizada">
-            <div>
-              <div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
-              <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: ' + esc(c.fechaFin) : ''}</div>
-            </div>
-            <div class="hoja-badge badge-realizada">✓ Realizada</div>
-          </div>`;
+        html += `<div class="colegio-tipo-item realizada">
+          <div><div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+          <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: '+esc(c.fechaFin):''}</div></div>
+          <div class="hoja-badge badge-realizada">✓ Realizada</div></div>`;
       } else {
-        html += `
-          <div class="colegio-tipo-item" onclick="seleccionarColegioTipo(${JSON.stringify(c).replace(/"/g,'&quot;')})">
-            <div>
-              <div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
-              <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: ' + esc(c.fechaFin) : ''}</div>
-            </div>
-            <div class="hoja-badge">${c.cantTareas} tarea${c.cantTareas !== 1 ? 's' : ''}</div>
-          </div>`;
+        html += `<div class="colegio-tipo-item" onclick="seleccionarColegioTipo(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+          <div><div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+          <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: '+esc(c.fechaFin):''}</div></div>
+          <div class="hoja-badge">${c.cantTareas} tarea${c.cantTareas !== 1 ? 's':''}</div></div>`;
       }
     });
 
@@ -895,27 +1312,21 @@ async function renderColegiosPorTipo() {
 }
 
 async function seleccionarColegioTipo(colegio) {
-  // Armar la hoja seleccionada con el tipo ya conocido
   estado.domicilio = colegio.domicilio;
   estado.hojaSeleccionada = {
-    ordenPpal: colegio.ordenPpal,
-    tipo: estado.tipoSeleccionado,
-    fechaFin: colegio.fechaFin,
-    ordenes: colegio.ordenes
+    ordenPpal: colegio.ordenPpal, tipo: estado.tipoSeleccionado,
+    fechaFin: colegio.fechaFin, ordenes: colegio.ordenes
   };
   estado.paso = 3;
   render();
 
   const app = document.getElementById("app");
   app.innerHTML += `<div class="card" id="card-tareas"><div class="loading">Cargando tareas...</div></div>`;
-
   try {
     const res = await getTareas(colegio.ordenPpal, colegio.ordenes);
     if (!res.ok) throw new Error(res.error);
-    estado.tareas      = res.tareas;
-    estado.fechaInicio = res.fechaInicio || "";
-    estado.fechaFin    = res.fechaFin    || "";
-    estado.respuestas  = {};
+    estado.tareas = res.tareas; estado.fechaInicio = res.fechaInicio || "";
+    estado.fechaFin = res.fechaFin || ""; estado.respuestas = {};
     renderFormularioTareas();
   } catch (e) {
     document.getElementById("card-tareas").innerHTML =
@@ -923,14 +1334,11 @@ async function seleccionarColegioTipo(colegio) {
   }
 }
 
-function volverModo() {
-  estado.paso = 0;
-  estado.modo = "";
-  estado.tipoSeleccionado = "";
-  render();
-}
+function volverModo() { estado.paso = 0; estado.modo = ""; estado.tipoSeleccionado = ""; render(); }
 
-
+// ============================================================
+// MODO COLEGIO — Pasos 1 y 2
+// ============================================================
 async function renderColegios() {
   const app = document.getElementById("app");
   app.innerHTML += `<div class="card">
@@ -947,15 +1355,12 @@ async function renderColegios() {
       </div>
       <div class="colegios-grid" id="lista-colegios">`;
     res.colegios.forEach(c => {
-      html += `
-        <div class="colegio-card colegio-item"
-          onclick="seleccionarColegio(this.dataset.valor)"
-          data-valor="${esc(c)}"
-          data-nombre="${c.toLowerCase()}">
-          <div class="colegio-icono">🏫</div>
-          <div class="colegio-nombre">${esc(c)}</div>
-          <span class="colegio-flecha">›</span>
-        </div>`;
+      html += `<div class="colegio-card colegio-item"
+        onclick="seleccionarColegio(this.dataset.valor)"
+        data-valor="${esc(c)}" data-nombre="${c.toLowerCase()}">
+        <div class="colegio-icono">🏫</div>
+        <div class="colegio-nombre">${esc(c)}</div>
+        <span class="colegio-flecha">›</span></div>`;
     });
     html += `</div>`;
     document.getElementById("contenido-colegios").innerHTML = html;
@@ -995,27 +1400,18 @@ async function renderHojas() {
     } else {
       res.hojas.forEach(h => {
         if (h.realizada) {
-          html += `
-            <div class="hoja-item realizada">
-              <div>
-                <div class="hoja-tipo">${esc(h.tipo)}</div>
-                <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
-              </div>
-              <div class="hoja-badge badge-realizada">✓ Realizada</div>
-            </div>`;
+          html += `<div class="hoja-item realizada">
+            <div><div class="hoja-tipo">${esc(h.tipo)}</div>
+            <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin?' · Vence: '+esc(h.fechaFin):''}</div></div>
+            <div class="hoja-badge badge-realizada">✓ Realizada</div></div>`;
         } else {
-          html += `
-            <div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
-              <div>
-                <div class="hoja-tipo">${esc(h.tipo)}</div>
-                <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin ? ' · Vence: ' + esc(h.fechaFin) : ''}</div>
-              </div>
-              <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas !== 1 ? 's' : ''}</div>
-            </div>`;
+          html += `<div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
+            <div><div class="hoja-tipo">${esc(h.tipo)}</div>
+            <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin?' · Vence: '+esc(h.fechaFin):''}</div></div>
+            <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas!==1?'s':''}</div></div>`;
         }
       });
     }
-
     html += `<br><button class="btn btn-back" onclick="volver()">← Cambiar colegio</button>`;
     document.getElementById("contenido-hojas").innerHTML = html;
   } catch (e) {
@@ -1033,10 +1429,8 @@ async function seleccionarHoja(hoja) {
   try {
     const res = await getTareas(hoja.ordenPpal, hoja.ordenes);
     if (!res.ok) throw new Error(res.error);
-    estado.tareas      = res.tareas;
-    estado.fechaInicio = res.fechaInicio || "";
-    estado.fechaFin    = res.fechaFin    || "";
-    estado.respuestas  = {};
+    estado.tareas = res.tareas; estado.fechaInicio = res.fechaInicio || "";
+    estado.fechaFin = res.fechaFin || ""; estado.respuestas = {};
     renderFormularioTareas();
   } catch (e) {
     document.getElementById("card-tareas").innerHTML =
@@ -1044,6 +1438,9 @@ async function seleccionarHoja(hoja) {
   }
 }
 
+// ============================================================
+// Formulario de tareas
+// ============================================================
 function renderFormularioTareas() {
   if (!estado.tareas || estado.tareas.length === 0) return;
   let card = document.getElementById("card-tareas");
@@ -1055,32 +1452,28 @@ function renderFormularioTareas() {
   }
 
   const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
-  const mesAnio = estado.mes + " 2026";
+  const tiposConInforme = ["GAS", "AGUA", "ELECTRICA", "ELECTR"];
+  const tipoHoja = (estado.hojaSeleccionada.tipo || "").toUpperCase();
+  const hojaConInforme = tiposConInforme.some(t => tipoHoja.includes(t));
 
   let html = `
   <div style="background:#1a3a5c;color:white;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <span style="font-size:0.75rem;opacity:0.8;">SAP N°</span>
       <span style="font-size:0.75rem;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">MEPL &nbsp;|&nbsp; COMUNA 6</span>
-      <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${(estado.mes || "").toUpperCase()} 2026</span>
+      <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${(estado.mes||"").toUpperCase()} 2026</span>
     </div>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">${esc(estado.hojaSeleccionada.ordenPpal)}</div>
     <div style="font-size:0.85rem;opacity:0.9;margin-bottom:10px;">📍 ${esc(estado.domicilio)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.78rem;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-      <div><span style="opacity:0.7;">Inicio ext.</span><br><strong>${esc(estado.fechaInicio) || "—"}</strong></div>
-      <div><span style="opacity:0.7;">Fin ext.</span><br><strong>${esc(estado.fechaFin) || "—"}</strong></div>
+      <div><span style="opacity:0.7;">Inicio ext.</span><br><strong>${esc(estado.fechaInicio)||"—"}</strong></div>
+      <div><span style="opacity:0.7;">Fin ext.</span><br><strong>${esc(estado.fechaFin)||"—"}</strong></div>
     </div>
   </div>
   <div style="font-size:0.95rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;">${esc(estado.hojaSeleccionada.tipo)}</div>`;
 
-  // Tipos de hoja que requieren botón de informe en la primera tarea
-  const tiposConInforme = ["GAS", "AGUA", "ELECTRICA", "ELECTR"];
-  const tipoHoja = (estado.hojaSeleccionada.tipo || "").toUpperCase();
-  const hojaConInforme = tiposConInforme.some(t => tipoHoja.includes(t));
-
   estado.tareas.forEach((t, idx) => {
     const key = `${t.orden}_${t.clave}`;
-    // Botón de informe solo en primera tarea de hojas que corresponden
     const mostrarInforme = hojaConInforme && idx === 0;
     html += `
       <div class="tarea-card">
@@ -1090,15 +1483,10 @@ function renderFormularioTareas() {
         </div>
         <div class="tarea-rutina">${formatearDescripcion(t.descripcion)}</div>
         <div class="tarea-respuesta">
-          <label>Respuesta <span class="contador">${idx + 1}/${estado.tareas.length}</span></label>
+          <label>Respuesta <span class="contador">${idx+1}/${estado.tareas.length}</span></label>
           <div class="respuesta-opciones">
-            ${opciones.map(op => `
-              <button class="opcion-btn" onclick="elegirOpcion('${key}', '${op}', this)">${op}</button>
-            `).join("")}
-            ${mostrarInforme ? `
-              <button class="opcion-btn" onclick="elegirOpcion('${key}', 'se adjunta informe de consumo', this)" style="border-color:#1a6a8a;color:#1a6a8a;">
-                📋 Se adjunta informe de consumo
-              </button>` : ""}
+            ${opciones.map(op => `<button class="opcion-btn" onclick="elegirOpcion('${key}','${op}',this)">${op}</button>`).join("")}
+            ${mostrarInforme ? `<button class="opcion-btn" onclick="elegirOpcion('${key}','se adjunta informe de consumo',this)" style="border-color:#1a6a8a;color:#1a6a8a;">📋 Se adjunta informe de consumo</button>` : ""}
           </div>
           <textarea id="txt_${key}" placeholder="Descripción de la tarea realizada (obligatorio)..."
             onchange="actualizarRespuesta('${key}')"></textarea>
@@ -1110,21 +1498,15 @@ function renderFormularioTareas() {
     <div class="card" style="margin-top:8px;">
       <h2>Observaciones</h2>
       <textarea id="inp-observaciones" placeholder="Observaciones generales (opcional)..." style="min-height:70px;"
-        oninput="estado.observaciones = this.value"></textarea>
+        oninput="estado.observaciones=this.value"></textarea>
     </div>
     <div class="card" style="margin-top:8px;">
       <h2>Datos del operario</h2>
       <div class="firmante">
-        <div>
-          <label>Nombre del operario</label>
-          <input type="text" id="inp-operario" placeholder="Nombre y apellido"
-            oninput="estado.operario = this.value">
-        </div>
-        <div>
-          <label>Jefe de sitio</label>
-          <input type="text" id="inp-jefe" placeholder="Nombre y apellido"
-            oninput="estado.jefe = this.value">
-        </div>
+        <div><label>Nombre del operario</label>
+          <input type="text" id="inp-operario" placeholder="Nombre y apellido" oninput="estado.operario=this.value"></div>
+        <div><label>Jefe de sitio</label>
+          <input type="text" id="inp-jefe" placeholder="Nombre y apellido" oninput="estado.jefe=this.value"></div>
       </div>
     </div>
     <div id="error-envio"></div>
@@ -1138,23 +1520,19 @@ function renderFormularioTareas() {
 
 function elegirOpcion(key, opcion, btn) {
   btn.closest(".respuesta-opciones").querySelectorAll(".opcion-btn").forEach(b => {
-    b.classList.remove("selected", "selected-na", "selected-informe");
+    b.classList.remove("selected","selected-na","selected-informe");
   });
-  const esNA = opcion === "No aplica" || opcion === "En obra";
+  const esNA      = opcion === "No aplica" || opcion === "En obra";
   const esInforme = opcion === "se adjunta informe de consumo";
   if (esNA) btn.classList.add("selected-na");
   else if (esInforme) btn.classList.add("selected-informe");
   else btn.classList.add("selected");
 
   const txt = document.getElementById(`txt_${key}`);
-  if (esNA) {
-    txt.value = opcion.toLowerCase();
-    txt.style.opacity = "0.5";
-  } else if (esInforme) {
-    txt.value = "se adjunta informe de consumo";
-    txt.style.opacity = "0.6";
-  } else {
-    if (txt.value === "no aplica" || txt.value === "en obra" || txt.value === "se adjunta informe de consumo") txt.value = "";
+  if (esNA) { txt.value = opcion.toLowerCase(); txt.style.opacity = "0.5"; }
+  else if (esInforme) { txt.value = "se adjunta informe de consumo"; txt.style.opacity = "0.6"; }
+  else {
+    if (["no aplica","en obra","se adjunta informe de consumo"].includes(txt.value)) txt.value = "";
     txt.style.opacity = "1";
   }
   estado.respuestas[key] = { opcion, texto: txt.value };
@@ -1177,11 +1555,9 @@ async function enviarRespuestas() {
   });
 
   if (sinResponder.length > 0) {
-    errorDiv.innerHTML = `<div class="error-msg">Falta completar ${sinResponder.length} tarea(s): 
-      ${sinResponder.map(t => t.clave).join(", ")}</div>`;
+    errorDiv.innerHTML = `<div class="error-msg">Falta completar ${sinResponder.length} tarea(s): ${sinResponder.map(t=>t.clave).join(", ")}</div>`;
     return;
   }
-
   if (!estado.operario.trim()) {
     errorDiv.innerHTML = `<div class="error-msg">Ingresá el nombre del operario.</div>`;
     return;
@@ -1209,8 +1585,7 @@ async function enviarRespuestas() {
   }));
 
   const btn = document.querySelector(".btn-success");
-  btn.disabled = true;
-  btn.textContent = "Enviando...";
+  btn.disabled = true; btn.textContent = "Enviando...";
 
   try {
     const res = await apiPost({ tareas });
@@ -1219,11 +1594,13 @@ async function enviarRespuestas() {
     render();
   } catch (e) {
     errorDiv.innerHTML = `<div class="error-msg">Error al enviar: ${e.message}</div>`;
-    btn.disabled = false;
-    btn.textContent = "Enviar respuestas ✓";
+    btn.disabled = false; btn.textContent = "Enviar respuestas ✓";
   }
 }
 
+// ============================================================
+// Confirmación
+// ============================================================
 function renderConfirmacion() {
   const app = document.getElementById("app");
   app.innerHTML += `
@@ -1241,50 +1618,46 @@ function renderConfirmacion() {
 
 function reiniciar() {
   if (estado.modo === "tipo") {
-    // Volver a la lista de colegios del mismo tipo
-    estado.paso = 2;
-    estado.hojaSeleccionada = null;
+    estado.paso = 2; estado.hojaSeleccionada = null;
     estado.tareas = []; estado.respuestas = {};
     estado.operario = ""; estado.jefe = "";
     estado.fechaInicio = ""; estado.fechaFin = "";
   } else {
-    // Volver a las hojas del mismo colegio
-    const domicilioActual = estado.domicilio;
+    const dom = estado.domicilio;
     estado = { paso: 2, modo: "colegio", tipoSeleccionado: "",
-               domicilio: domicilioActual, hojaSeleccionada: null,
+               domicilio: dom, hojaSeleccionada: null,
                tareas: [], respuestas: {}, operario: "", jefe: "",
-               fechaInicio: "", fechaFin: "" };
+               fechaInicio: "", fechaFin: "", observaciones: "",
+               vista: "formulario" };
   }
   render();
 }
 
 function volver() {
-  if (estado.paso <= 1) {
-    volverModo();
-    return;
-  }
+  if (estado.vista === "admin") { estado.vista = "formulario"; estado.paso = 0; render(); return; }
+  if (estado.paso <= 1) { volverModo(); return; }
   estado.paso = estado.paso - 1;
   render();
 }
 
+// ── helpers ──────────────────────────────────────────────────
 function formatearDescripcion(texto) {
   if (!texto) return "";
-  const normalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  const idx = normalizado.indexOf("\n");
+  const norm = texto.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  const idx  = norm.indexOf("\n");
   if (idx > 0) {
-    const titulo = normalizado.slice(0, idx).trim();
-    const cuerpo = normalizado.slice(idx + 1).trim();
-    return `<strong style="display:block;margin-bottom:6px;">${esc(titulo)}</strong>${esc(cuerpo).replace(/\n/g, "<br>")}`;
+    return `<strong style="display:block;margin-bottom:6px;">${esc(norm.slice(0,idx).trim())}</strong>${esc(norm.slice(idx+1).trim()).replace(/\n/g,"<br>")}`;
   }
-  return esc(normalizado);
+  return esc(norm);
 }
 
 function esc(str) {
-  return String(str || "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(str||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
+// ── inicio ───────────────────────────────────────────────────
 estado.paso = -1;
 render();
 </script>
