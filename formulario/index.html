@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>MEPL — Formulario de Respuestas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:#1e3a5f; --brand-mid:#2563a8; --brand-light:#dbeafe; --brand-xlight:#f0f6ff;
+      --accent:#f97316; --accent-light:#fff7ed;
+      --success:#16a34a; --success-light:#f0fdf4;
+      --danger:#dc2626; --danger-light:#fef2f2;
+      --warn:#d97706; --warn-light:#fffbeb;
+      --bg:#f4f6f9; --surface:#ffffff;
+      --border:#e2e8f0; --border-mid:#cbd5e1;
+      --muted:#94a3b8; --text-sec:#64748b; --text:#0f172a;
+      --font:'Inter',system-ui,sans-serif;
+      --mono:'JetBrains Mono',monospace;
+      --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px;
+      --sh-xs:0 1px 2px rgba(0,0,0,.05);
+      --sh-sm:0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:0 4px 20px rgba(0,0,0,.09),0 2px 6px rgba(0,0,0,.05);
+      --sh-lg:0 8px 32px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.06);
+      --t-fast:140ms ease; --t-med:220ms ease;
+    }
+    html { font-size:16px; -webkit-tap-highlight-color:transparent; }
+    body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.6; -webkit-font-smoothing:antialiased; }
+
+    /* HEADER */
+    header {
+      position:sticky; top:0; z-index:200; height:60px;
+      background:rgba(30,58,95,0.97);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      display:flex; align-items:center; padding:0 20px; gap:14px;
+      box-shadow:0 2px 20px rgba(0,0,0,0.25);
+    }
+    .logo-wrap { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .logo-badge { background:var(--accent); color:#fff; font-family:var(--mono); font-size:.78rem; font-weight:500; padding:4px 10px; border-radius:var(--r-sm); letter-spacing:.06em; }
+    .logo-sep { width:1px; height:20px; background:rgba(255,255,255,0.2); }
+    .logo-text { font-size:.82rem; font-weight:500; color:rgba(255,255,255,0.7); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .header-right { margin-left:auto; display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    #header-mes { display:none; background:var(--accent); color:#fff; font-family:var(--mono); font-size:.72rem; font-weight:500; padding:4px 12px; border-radius:20px; letter-spacing:.05em; white-space:nowrap; }
+    .btn-header { display:none; align-items:center; gap:5px; padding:6px 14px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:var(--r-sm); color:rgba(255,255,255,0.88); font-family:var(--font); font-size:.78rem; font-weight:500; cursor:pointer; transition:background var(--t-fast); white-space:nowrap; }
+    .btn-header:hover { background:rgba(255,255,255,0.18); }
+    .btn-header:active { transform:scale(0.97); }
+
+    /* ADMIN BAR */
+    .admin-bar { display:none; align-items:center; gap:10px; padding:10px 20px; background:#1a0a3d; border-bottom:1px solid rgba(167,139,250,0.2); font-size:.8rem; flex-wrap:wrap; }
+    .admin-bar strong { color:#fbbf24; font-weight:600; }
+    .admin-bar span { color:rgba(255,255,255,0.5); }
+
+    /* LAYOUT */
+    .container { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+
+    /* STEPPER (alias paso-indicator/paso) */
+    .paso-indicator,.progress-wrap { display:flex; gap:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:20px; box-shadow:var(--sh-xs); }
+    .paso,.progress-step { flex:1; padding:11px 8px; text-align:center; font-size:.72rem; font-weight:500; color:var(--muted); border-right:1px solid var(--border); transition:all var(--t-med); line-height:1.3; background:transparent; position:relative; }
+    .paso:last-child,.progress-step:last-child { border-right:none; }
+    .paso.activo,.progress-step.activo { background:var(--brand-xlight); color:var(--brand); font-weight:700; }
+    .paso.activo::after,.progress-step.activo::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--brand-mid); }
+    .paso.completo,.progress-step.completo { background:var(--success-light); color:var(--success); font-weight:600; }
+
+    /* CARD */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-xl); padding:24px; margin-bottom:14px; box-shadow:var(--sh-sm); }
+    .card-title { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+
+    /* INTRO */
+    .intro-strip { background:linear-gradient(135deg,var(--brand) 0%,#2563a8 100%); border-radius:var(--r-xl); padding:28px 24px; color:#fff; margin-bottom:14px; position:relative; overflow:hidden; }
+    .intro-strip::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.05); }
+    .intro-eyebrow { font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:6px; }
+    .intro-title { font-size:1.4rem; font-weight:700; margin-bottom:4px; }
+    .intro-sub { font-size:.85rem; color:rgba(255,255,255,0.7); }
+
+    /* MES SELECTOR */
+    .mes-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .mes-card { background:var(--brand-xlight); border:2px solid var(--border); border-radius:var(--r-lg); padding:28px 16px 24px; text-align:center; cursor:pointer; transition:all var(--t-med); }
+    .mes-card:hover { border-color:var(--brand-mid); transform:translateY(-3px); box-shadow:var(--sh-md); }
+    .mes-card:active { transform:translateY(-1px); }
+    .mes-icono { font-size:2.2rem; margin-bottom:10px; display:block; }
+    .mes-nombre { font-size:1.15rem; font-weight:700; color:var(--brand); }
+    .mes-anio { font-size:.75rem; color:var(--muted); font-family:var(--mono); margin-top:4px; }
+
+    /* MODO GRID */
+    .modo-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .modo-card { background:var(--surface); border:2px solid var(--border); border-radius:var(--r-lg); padding:22px 18px; cursor:pointer; transition:all var(--t-med); display:flex; flex-direction:column; gap:8px; }
+    .modo-card:hover { border-color:var(--brand-mid); background:var(--brand-xlight); transform:translateY(-2px); box-shadow:var(--sh-md); }
+    .modo-card:active { transform:translateY(0); }
+    .modo-icono { font-size:1.7rem; }
+    .modo-titulo { font-size:.95rem; font-weight:700; color:var(--brand); }
+    .modo-desc { font-size:.78rem; color:var(--text-sec); line-height:1.45; }
+
+    /* TIPOS */
+    .tipos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-bottom:18px; }
+    .tipo-card { display:flex; align-items:center; gap:8px; padding:12px 14px; border:1.5px solid var(--border); border-radius:var(--r-md); cursor:pointer; font-size:.84rem; font-weight:600; color:var(--text-sec); background:var(--surface); transition:all var(--t-fast); }
+    .tipo-card:hover { border-color:var(--brand-mid); background:var(--brand-xlight); color:var(--brand); transform:translateY(-1px); box-shadow:var(--sh-sm); }
+    .tipo-icono { font-size:1.15rem; flex-shrink:0; }
+
+    /* BUSCAR */
+    /* buscar — .buscar-wrap y .buscar-colegio-wrap (clase que usa el JS) */
+    .buscar-wrap, .buscar-colegio-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .buscar-wrap input, .buscar-colegio-wrap input {
+      width: 100%;
+      padding: 11px 14px 11px 40px !important;
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--r-md);
+      font-size: .92rem;
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+      -webkit-appearance: none;
+      box-sizing: border-box;
+    }
+    .buscar-wrap input:focus, .buscar-colegio-wrap input:focus {
+      outline: none;
+      border-color: var(--brand-mid);
+      box-shadow: 0 0 0 3px rgba(37,99,168,0.15);
+      background: #fff;
+    }
+    .buscar-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: var(--muted);
+      pointer-events: none;
+      z-index: 2;
+      line-height: 1;
+    }
+    /* h2 legacy: el JS inyecta <h2> sin clase dentro de .card */
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 18px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* COLEGIOS */
+    .colegios-grid { display:flex; flex-direction:column; gap:6px; max-height:440px; overflow-y:auto; padding-right:4px; }
+    .colegios-grid::-webkit-scrollbar { width:4px; }
+    .colegios-grid::-webkit-scrollbar-thumb { background:var(--border-mid); border-radius:4px; }
+    .colegio-card { display:flex; align-items:center; gap:12px; padding:14px 16px; border:1.5px solid var(--border); border-radius:var(--r-md); cursor:pointer; background:var(--surface); transition:all var(--t-fast); }
+    .colegio-card:hover { border-color:var(--brand-mid); background:var(--brand-xlight); transform:translateX(3px); }
+    .colegio-icono { font-size:1.25rem; flex-shrink:0; }
+    .colegio-nombre { flex:1; font-size:.88rem; font-weight:600; color:var(--text); }
+    .colegio-flecha { color:var(--muted); font-size:1.1rem; transition:transform var(--t-fast); }
+    .colegio-card:hover .colegio-flecha { transform:translateX(3px); color:var(--brand-mid); }
+
+    /* HOJAS */
+    .hoja-item,.colegio-tipo-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; border:1.5px solid var(--border); border-radius:var(--r-md); margin-bottom:8px; cursor:pointer; background:var(--surface); transition:all var(--t-fast); }
+    .hoja-item:hover,.colegio-tipo-item:hover { border-color:var(--brand-mid); background:var(--brand-xlight); box-shadow:var(--sh-sm); transform:translateY(-1px); }
+    .hoja-item.realizada,.colegio-tipo-item.realizada { border-color:#86efac; background:var(--success-light); cursor:default; }
+    .hoja-item.realizada:hover,.colegio-tipo-item.realizada:hover { transform:none; box-shadow:none; }
+    .hoja-tipo { font-weight:700; font-size:.9rem; color:var(--text); }
+    .hoja-info { font-size:.76rem; color:var(--muted); margin-top:3px; font-family:var(--mono); }
+    .hoja-badge { background:var(--brand-light); color:var(--brand-mid); font-size:.72rem; font-weight:700; padding:5px 12px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+    .badge-realizada { background:#dcfce7; color:var(--success); }
+
+    /* ORDEN HEADER */
+    .orden-header { background:linear-gradient(135deg,var(--brand) 0%,#1e4a8a 100%); border-radius:var(--r-lg); padding:20px; margin-bottom:16px; color:#fff; box-shadow:0 4px 16px rgba(30,58,95,0.35); }
+    .orden-header-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; gap:10px; flex-wrap:wrap; }
+    .orden-num { font-family:var(--mono); font-size:1.4rem; font-weight:500; letter-spacing:.04em; line-height:1; }
+    .orden-badge { font-size:.7rem; font-weight:700; background:var(--accent); color:#fff; padding:4px 12px; border-radius:20px; font-family:var(--mono); letter-spacing:.04em; white-space:nowrap; }
+    .orden-dom { font-size:.88rem; color:rgba(255,255,255,0.82); margin-bottom:14px; }
+    .orden-meta { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; border-top:1px solid rgba(255,255,255,0.12); padding-top:14px; }
+    .orden-meta-item .meta-label,.orden-meta-item span { display:block; font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,0.5); margin-bottom:3px; }
+    .orden-meta-item strong { font-family:var(--mono); font-size:.8rem; font-weight:500; color:rgba(255,255,255,0.92); }
+    .orden-tipo-label { display:inline-flex; align-items:center; gap:6px; font-size:.8rem; font-weight:700; color:var(--brand); background:var(--brand-xlight); border:1.5px solid var(--brand-light); padding:7px 14px; border-radius:var(--r-sm); margin-bottom:16px; }
+
+    /* TAREAS */
+    .tarea-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:12px; box-shadow:var(--sh-sm); transition:box-shadow var(--t-med); }
+    .tarea-card:hover { box-shadow:var(--sh-md); }
+    .tarea-header { display:flex; align-items:center; gap:10px; padding:14px 16px 12px; border-bottom:1px solid var(--border); background:var(--bg); }
+    .clave { font-family:var(--mono); font-size:.72rem; font-weight:500; background:var(--brand); color:#fff; padding:3px 9px; border-radius:var(--r-sm); flex-shrink:0; letter-spacing:.03em; }
+    .texto { font-weight:700; font-size:.9rem; color:var(--text); flex:1; }
+    .contador { font-family:var(--mono); font-size:.68rem; color:var(--muted); background:var(--border); padding:3px 9px; border-radius:20px; flex-shrink:0; }
+    .tarea-rutina { padding:12px 16px; font-size:.8rem; color:var(--text-sec); line-height:1.6; border-bottom:1px solid var(--border); background:#fafbfd; }
+    .tarea-respuesta { padding:14px 16px; }
+    .tarea-respuesta > label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px; }
+    .respuesta-opciones { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+    .opcion-btn { padding:9px 16px; border:1.5px solid var(--border-mid); border-radius:var(--r-md); background:var(--surface); font-family:var(--font); font-size:.82rem; font-weight:600; cursor:pointer; color:var(--text-sec); transition:all var(--t-fast); min-height:44px; -webkit-tap-highlight-color:transparent; }
+    .opcion-btn:hover { border-color:var(--brand-mid); color:var(--brand); background:var(--brand-xlight); }
+    .opcion-btn:active { transform:scale(0.97); }
+    .opcion-btn.selected { background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:0 2px 8px rgba(30,58,95,0.25); }
+    .opcion-btn.selected-na { background:var(--bg); color:var(--text-sec); border-color:var(--border-mid); }
+    .opcion-btn.selected-informe { background:#0e7490; color:#fff; border-color:#0e7490; }
+
+    /* FORMS */
+    label { display:block; font-size:.78rem; font-weight:600; color:var(--text-sec); margin-bottom:7px; }
+    input[type="text"],textarea,select { width:100%; padding:11px 14px; border:1.5px solid var(--border-mid); border-radius:var(--r-md); font-size:.92rem; font-family:var(--font); background:var(--surface); color:var(--text); transition:border-color var(--t-fast),box-shadow var(--t-fast); -webkit-appearance:none; }
+    input:focus,textarea:focus,select:focus { outline:none; border-color:var(--brand-mid); box-shadow:0 0 0 3px rgba(37,99,168,0.15); background:#fff; }
+    textarea { min-height:88px; resize:vertical; line-height:1.5; }
+    .firmante { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .dates { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* BOTONES */
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:11px 22px; border-radius:var(--r-md); font-family:var(--font); font-size:.88rem; font-weight:600; cursor:pointer; border:1.5px solid transparent; transition:all var(--t-fast); text-decoration:none; min-height:46px; -webkit-tap-highlight-color:transparent; line-height:1.3; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; pointer-events:none; }
+    .btn:active:not(:disabled) { transform:scale(0.97); }
+    .btn-primary { background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:0 2px 8px rgba(30,58,95,0.2); }
+    .btn-primary:hover { background:var(--brand-mid); border-color:var(--brand-mid); box-shadow:0 4px 12px rgba(30,58,95,0.28); }
+    .btn-success { background:var(--success); color:#fff; border-color:var(--success); box-shadow:0 2px 8px rgba(22,163,74,0.2); }
+    .btn-success:hover { background:#15803d; box-shadow:0 4px 12px rgba(22,163,74,0.28); }
+    .btn-warning { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 2px 8px rgba(249,115,22,0.2); }
+    .btn-warning:hover { background:#ea6c10; }
+    .btn-back { background:transparent; color:var(--text-sec); border-color:var(--border-mid); }
+    .btn-back:hover { background:var(--bg); border-color:var(--muted); color:var(--text); }
+    .btn-danger { background:transparent; color:var(--danger); border-color:#fca5a5; }
+    .btn-danger:hover { background:var(--danger-light); }
+    .btn-sm { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; font-size:.78rem; font-weight:600; border-radius:var(--r-sm); font-family:var(--font); cursor:pointer; border:1.5px solid transparent; transition:all var(--t-fast); min-height:36px; -webkit-tap-highlight-color:transparent; }
+    .btn-sm:active { transform:scale(0.96); }
+    .btn-sm-primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+    .btn-sm-primary:hover { background:var(--brand-mid); }
+    .btn-sm-warning { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .btn-sm-warning:hover { background:#ea6c10; }
+    .btn-sm-danger { background:transparent; color:var(--danger); border-color:#fca5a5; }
+    .btn-sm-danger:hover { background:var(--danger-light); }
+
+    /* ESTADOS */
+    .loading { text-align:center; color:var(--muted); padding:36px 0; font-size:.9rem; }
+    .loading::before { content:''; display:block; width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--brand-mid); border-radius:50%; animation:spin .65s linear infinite; margin:0 auto 12px; }
+    /* Cuando el div.loading ya tiene elementos hijo (lista cargada), ocultar spinner */
+    .loading:has(> div),
+    .loading:has(> span),
+    .loading:has(> input),
+    .loading:has(> p),
+    .loading:has(> button) { padding:0; }
+    .loading:has(> div)::before,
+    .loading:has(> span)::before,
+    .loading:has(> input)::before,
+    .loading:has(> p)::before,
+    .loading:has(> button)::before { display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .error-msg { background:var(--danger-light); border:1.5px solid #fca5a5; color:var(--danger); padding:12px 16px; border-radius:var(--r-md); font-size:.875rem; font-weight:500; margin-top:10px; }
+    .success-msg { background:var(--success-light); border:1px solid #86efac; border-radius:var(--r-xl); padding:28px 24px; text-align:center; }
+    .success-msg h3 { font-size:1.2rem; color:var(--success); margin-bottom:10px; font-weight:700; }
+    .success-msg p { color:var(--text-sec); font-size:.9rem; line-height:1.6; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--text); color:#fff; padding:12px 22px; border-radius:24px; font-size:.875rem; font-weight:500; z-index:9999; transition:opacity .3s; max-width:calc(100vw - 32px); white-space:nowrap; box-shadow:var(--sh-lg); text-align:center; }
+    .toast.ok { background:var(--success); }
+    .toast.err { background:var(--danger); }
+
+    /* MODAL CONFIRMACIÓN */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      padding: 28px 24px;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: var(--sh-lg);
+      text-align: center;
+    }
+    .modal-icono { font-size: 2rem; margin-bottom: 12px; }
+    .modal-titulo { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .modal-sub { font-size: .85rem; color: var(--text-sec); margin-bottom: 24px; line-height: 1.5; }
+    .modal-acciones { display: flex; gap: 10px; justify-content: center; }
+
+    /* OVERLAY ENVIANDO */
+    .enviando-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .enviando-card {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 300px;
+      width: 100%;
+      box-shadow: var(--sh-lg);
+    }
+    .enviando-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--brand-mid);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 20px;
+    }
+    .enviando-titulo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .enviando-sub {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .enviando-exito .enviando-spinner {
+      border-color: #86efac;
+      border-top-color: var(--success);
+      animation: none;
+    }
+    .enviando-exito-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--success-light);
+      border: 3px solid #86efac;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 20px;
+      animation: popIn .3s ease;
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0.5); opacity: 0; }
+      70%  { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* BIENVENIDA */
+    .bienvenida-hero {
+      background: linear-gradient(135deg, var(--brand) 0%, #1a4a8a 60%, #0f2d52 100%);
+      border-radius: var(--r-xl);
+      padding: 40px 28px 32px;
+      color: #fff;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .bienvenida-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .bienvenida-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .bienvenida-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .bienvenida-logo-badge {
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      letter-spacing: .06em;
+    }
+    .bienvenida-logo-empresa {
+      font-size: .9rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: .02em;
+    }
+    .bienvenida-titulo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+      line-height: 1.3;
+    }
+    .bienvenida-sub {
+      font-size: .88rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+    .bienvenida-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      background: #fff;
+      color: var(--brand);
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--t-fast);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .bienvenida-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .bienvenida-btn:active { transform: translateY(0); }
+
+    .bienvenida-features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .bienvenida-feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: var(--sh-xs);
+    }
+    .bienvenida-feature-icono { font-size: 1.6rem; margin-bottom: 8px; }
+    .bienvenida-feature-titulo {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .bienvenida-feature-desc {
+      font-size: .72rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .bienvenida-footer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--sh-xs);
+    }
+    .bienvenida-footer-icono { font-size: 1.4rem; flex-shrink: 0; }
+    .bienvenida-footer-texto { font-size: .78rem; color: var(--text-sec); line-height: 1.5; }
+    .bienvenida-footer-texto strong { color: var(--text); }
+
+    @media (max-width: 480px) {
+      .bienvenida-hero { padding: 32px 20px 28px; }
+      .bienvenida-titulo { font-size: 1.25rem; }
+      .bienvenida-features { grid-template-columns: 1fr; gap: 8px; }
+      .bienvenida-feature { display: flex; align-items: center; gap: 12px; text-align: left; padding: 14px; }
+      .bienvenida-feature-icono { margin-bottom: 0; flex-shrink: 0; }
+    }
+
+    /* PROGRESO GUARDADO */
+    .progreso-banner {
+      background: var(--warn-light);
+      border: 1.5px solid #fcd34d;
+      border-radius: var(--r-lg);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .progreso-banner-info { flex: 1; min-width: 180px; }
+    .progreso-banner-titulo { font-weight: 700; font-size: .9rem; color: var(--text); margin-bottom: 3px; }
+    .progreso-banner-sub { font-size: .78rem; color: var(--text-sec); }
+    .progreso-banner-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* PIN ADMIN */
+    .pin-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .pin-card {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 340px;
+      box-shadow: var(--sh-lg);
+      text-align: center;
+    }
+    .pin-icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .pin-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .pin-sub { font-size: .82rem; color: var(--muted); margin-bottom: 24px; }
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .pin-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--border-mid);
+      background: transparent;
+      transition: all var(--t-fast);
+    }
+    .pin-dot.filled { background: var(--brand); border-color: var(--brand); }
+    .pin-dot.error  { background: var(--danger); border-color: var(--danger); }
+    .pin-numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pin-btn {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      cursor: pointer;
+      color: var(--text);
+      transition: all var(--t-fast);
+      min-height: 56px;
+    }
+    .pin-btn:hover { background: var(--brand-xlight); border-color: var(--brand-mid); color: var(--brand); }
+    .pin-btn:active { transform: scale(0.94); }
+    .pin-btn.borrar { font-size: .85rem; font-family: var(--font); color: var(--muted); }
+    .pin-error-msg { font-size: .8rem; color: var(--danger); font-weight: 600; min-height: 20px; }
+
+    /* BARRA PROGRESO TAREAS */
+    .progreso-tareas {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--sh-xs);
+    }
+    .progreso-tareas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .progreso-tareas-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+    .progreso-tareas-num {
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--brand);
+    }
+    .progreso-bar-wrap {
+      background: var(--gris-2, #eef0f3);
+      border-radius: 20px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progreso-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, var(--brand-mid), var(--success));
+      transition: width .4s ease;
+    }
+    .progreso-bar-fill.completo {
+      background: var(--success);
+    }
+    .progreso-tareas-estado {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* EXPORTAR EXCEL */
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      background: var(--success);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-family: var(--font);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--t-fast);
+      box-shadow: 0 2px 8px rgba(22,163,74,0.2);
+    }
+    .btn-export:hover { background: #15803d; box-shadow: 0 4px 12px rgba(22,163,74,0.28); }
+    .btn-export:active { transform: scale(0.97); }
+    .btn-export:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* BADGES ADMIN */
+    .badge-completo   { background: #dcfce7; color: var(--success); }
+    .badge-parcial    { background: #d4edda; color: #1a7a4a; }
+    .badge-error-mein { background: #ffcccc; color: #c00; }
+    .badge-pendiente-mein { background: var(--warn-light); color: var(--warn); }
+    .admin-error-detalle { color: var(--danger); font-size: .74rem; margin-top: 2px; }
+    .admin-vacio { text-align:center; padding:30px; color: var(--muted); font-size: .9rem; }
+
+    /* ADMIN */
+    .admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+    .admin-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:14px 12px; text-align:center; box-shadow:var(--sh-xs); }
+    .admin-stat-num { font-size:1.6rem; font-weight:700; color:var(--brand); font-family:var(--mono); line-height:1; }
+    .admin-stat-label { font-size:.7rem; color:var(--muted); margin-top:5px; font-weight:500; }
+    .admin-filtros { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; align-items:center; }
+    .admin-colegio-row { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1.5px solid var(--border); border-radius:var(--r-md); margin-bottom:8px; flex-wrap:wrap; background:var(--surface); transition:border-color var(--t-fast),box-shadow var(--t-fast); }
+    .admin-colegio-row:hover { box-shadow:var(--sh-sm); }
+    .admin-colegio-row.sin-mein { border-color:#fcd34d; background:#fffdf0; }
+    .admin-colegio-row.con-mein { border-color:#86efac; background:var(--success-light); }
+    .admin-colegio-row.encolada { border-color:#93c5fd; background:var(--brand-xlight); }
+    .admin-colegio-row.error-mein { border-color:#fca5a5; background:var(--danger-light); }
+    .admin-col-info { flex:1; min-width:180px; }
+    .admin-col-nombre { font-weight:700; font-size:.88rem; color:var(--text); }
+    .admin-col-detalle { font-size:.72rem; color:var(--muted); margin-top:4px; font-family:var(--mono); }
+    .admin-col-acciones { display:flex; gap:6px; align-items:center; flex-wrap:wrap; flex-shrink:0; }
+
+    /* RESPONSIVE */
+    /* Android común — 360px (Galaxy S, Moto G) */
+    @media (max-width:360px) {
+      .container { padding:10px 10px 48px; }
+      .card { padding:14px 12px; }
+      .btn { font-size:.85rem; padding:10px 16px; }
+      .opcion-btn { padding:9px 10px; font-size:.78rem; }
+      .orden-num { font-size:1rem; }
+      .mes-nombre { font-size:.95rem; }
+      .tipos-grid { grid-template-columns:1fr; }
+      .hoja-tipo { font-size:.85rem; }
+      .admin-stats { grid-template-columns:repeat(2,1fr); }
+    }
+
+    /* ── Android 360px — Samsung Galaxy A, Moto G ── */
+    @media (max-width:360px) {
+      .container { padding:10px 10px 48px; }
+      .card { padding:14px 12px; }
+      header { height:50px; padding:0 10px; }
+      .logo-badge { font-size:.72rem; padding:3px 8px; }
+      .btn-header { padding:5px 8px; font-size:.7rem; }
+      .orden-num { font-size:1rem; }
+      .orden-meta { grid-template-columns:1fr 1fr; }
+      .opcion-btn { padding:9px 10px; font-size:.76rem; min-height:44px; }
+      .btn { min-height:50px; font-size:.88rem; padding:10px 16px; }
+      .mes-card { padding:18px 10px 14px; }
+      .mes-nombre { font-size:.95rem; }
+      .mes-icono { font-size:1.6rem; }
+      .tarea-header { gap:6px; }
+      .clave { font-size:.68rem; padding:2px 7px; }
+      .texto { font-size:.8rem; }
+      .admin-stats { grid-template-columns:repeat(3,1fr); gap:5px; }
+      .admin-stat-num { font-size:1.1rem; }
+      .admin-stat-label { font-size:.65rem; }
+      .progreso-tareas { padding:10px 12px; }
+    }
+
+    @media (max-width:480px) {
+      .container { padding:14px 12px 48px; }
+      .card { padding:18px 16px; border-radius:var(--r-lg); }
+      header { height:54px; padding:0 14px; gap:10px; }
+      .logo-text,.logo-sep { display:none; }
+      .btn-header { padding:6px 10px; font-size:.74rem; }
+      .mes-card { padding:22px 12px 18px; }
+      .mes-icono { font-size:1.8rem; }
+      .mes-nombre { font-size:1rem; }
+      .modo-grid { grid-template-columns:1fr; gap:10px; }
+      .tipos-grid { grid-template-columns:1fr 1fr; gap:7px; }
+      .tipo-card { padding:11px 12px; font-size:.8rem; }
+      .paso,.progress-step { font-size:.66rem; padding:9px 4px; }
+      .orden-meta { grid-template-columns:1fr 1fr; gap:10px; }
+      .orden-num { font-size:1.2rem; }
+      .firmante { grid-template-columns:1fr; gap:12px; }
+      .respuesta-opciones { gap:6px; }
+      .opcion-btn { padding:10px 13px; font-size:.8rem; min-height:46px; }
+      .btn { min-height:48px; font-size:.9rem; }
+      .tarea-header { flex-wrap:wrap; }
+      .texto { font-size:.85rem; }
+      .admin-stats { grid-template-columns:repeat(3,1fr); gap:7px; }
+      .admin-stat-num { font-size:1.3rem; }
+    }
+    @media (min-width:481px) and (max-width:768px) {
+      .container { padding:20px 18px 48px; }
+      .orden-meta { grid-template-columns:1fr 1fr; }
+      .modo-grid { grid-template-columns:1fr 1fr; }
+      .tipos-grid { grid-template-columns:repeat(3,1fr); }
+      .admin-stats { grid-template-columns:repeat(3,1fr); }
+    }
+    @media (hover:none) {
+      .colegio-card:hover,.hoja-item:hover,.colegio-tipo-item:hover,
+      .tipo-card:hover,.mes-card:hover,.modo-card:hover { transform:none !important; }
+      /* Mejor feedback táctil en Android */
+      .opcion-btn:active { background:var(--brand-light) !important; transform:scale(0.95); }
+      .btn:active { transform:scale(0.96); }
+      .colegio-card:active { background:var(--brand-xlight); }
+      .hoja-item:active, .colegio-tipo-item:active { background:var(--brand-xlight); }
+    }
+    /* Evitar zoom en inputs en iOS y Android */
+    @media (max-width:768px) {
+      input[type="text"], textarea, select {
+        font-size: 16px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo-badge">MEPL</div>
+    <div class="logo-sep"></div>
+    <div class="logo-text">Formulario de Respuestas · Indaltec SA</div>
+  </div>
+  <div class="header-right">
+    <span id="header-mes"></span>
+    <button class="btn-header" onclick="volver()" id="btn-volver">&#8592; Volver</button>
+    <button class="btn-header" onclick="irInicio()" id="btn-inicio">&#8962; Inicio</button>
+  </div>
+</header>
+
+<div class="admin-bar" id="admin-bar">
+  <strong>&#9881; MODO ADMIN</strong>
+  <span>|</span>
+  <span>Panel de creaci&#243;n de MEINs</span>
+  <button class="btn-sm btn-sm-warning" style="margin-left:auto;" onclick="irAdmin()">Abrir panel MEINs</button>
+</div>
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<div id="toast" style="display:none;" class="toast"></div>
+
+<script>
+// ── Año dinámico ─────────────────────────────────────────────
+const ANIO = new Date().getFullYear();
+
+// ── Edge Function — backend seguro (API key oculta en servidor) ─
+const API_URL = "https://zynvptlesftdpyijxvpv.supabase.co/functions/v1/mepl-api";
+
+// ── detectar modo admin ───────────────────────────────────────
+const IS_ADMIN = new URLSearchParams(window.location.search).get("admin") === "true";
+if (IS_ADMIN) document.getElementById("admin-bar").style.display = "flex";
+
+// ── Logging de errores en Supabase ───────────────────────
+async function logError(mensaje, pantalla = "") {
+  try {
+    await fetch(`${API_URL}?tabla=errores_log`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([{
+        mensaje:     String(mensaje).slice(0, 500),
+        pantalla:    pantalla,
+        dispositivo: navigator.userAgent.slice(0, 200),
+        url:         window.location.href
+      }])
+    });
+  } catch (_) { /* silencioso — no generar loop de errores */ }
+}
+
+// ── Logging de errores ───────────────────────────────────────
+async function logError(mensaje, pantalla) {
+  try {
+    const url = new URL(API_URL);
+    url.searchParams.set("tabla", "errores_log");
+    await fetch(url.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([{
+        mensaje:    String(mensaje).slice(0, 500),
+        pantalla:   pantalla || "",
+        dispositivo: navigator.userAgent.slice(0, 200),
+        url:        window.location.href
+      }])
+    });
+  } catch (_) { /* silencioso — no romper si falla el log */ }
+}
+
+// ── fetch con timeout y reintentos ───────────────────────────
+async function fetchConTimeout(url, opciones = {}, timeoutMs = 10000, reintentos = 2) {
+  let ultimoError;
+  for (let intento = 0; intento <= reintentos; intento++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { ...opciones, signal: controller.signal });
+      clearTimeout(timer);
+      return res;
+    } catch (e) {
+      clearTimeout(timer);
+      ultimoError = e.name === "AbortError"
+        ? new Error("Sin conexión — la solicitud tardó demasiado. Verificá tu señal e intentá de nuevo.")
+        : new Error("Error de red. Verificá tu conexión a internet.");
+      if (intento < reintentos) await new Promise(r => setTimeout(r, 1000 * (intento + 1)));
+    }
+  }
+  throw ultimoError;
+}
+
+async function sbGet(tabla, params = {}) {
+  const url = new URL(API_URL);
+  url.searchParams.set("tabla", tabla);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetchConTimeout(url.toString());
+  if (!res.ok) throw new Error("Error al leer datos (" + res.status + "). Intentá de nuevo.");
+  return res.json();
+}
+
+async function sbPost(tabla, body) {
+  const url = new URL(API_URL);
+  url.searchParams.set("tabla", tabla);
+  const res = await fetchConTimeout(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("Error al guardar (" + res.status + "). Intentá de nuevo.");
+  return { ok: true };
+}
+
+async function sbPatch(tabla, params, body) {
+  console.warn("sbPatch no disponible via Edge Function");
+  return { ok: true };
+}
+
+async function sbDelete(tabla, params) {
+  const url = new URL(API_URL);
+  url.searchParams.set("tabla", tabla);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetchConTimeout(url.toString(), { method: "DELETE" });
+  if (!res.ok) throw new Error("Error al eliminar (" + res.status + "). Intentá de nuevo.");
+  return { ok: true };
+}
+
+
+function showToast(msg, tipo = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + tipo;
+  t.style.display = "block";
+  t.style.opacity = "1";
+  setTimeout(() => {
+    t.style.opacity = "0";
+    setTimeout(() => { t.style.display = "none"; }, 400);
+  }, 3000);
+}
+// helper: reemplaza innerHTML Y saca la clase loading del contenedor
+function setContenido(id, html) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = '';
+  el.innerHTML = html;
+}
+async function getColegios() {
+  const data = await sbGet("colegios_hojas", { select: "domicilio", mes: `eq.${estado.mes}` });
+  const colegios = [...new Set(data.map(r => r.domicilio).filter(Boolean))].sort();
+  return { ok: true, colegios };
+}
+
+async function getHojas(domicilio) {
+  const data = await sbGet("colegios_hojas", {
+    select: "orden,orden_principal,texto_breve,fecha_fin",
+    domicilio: `eq.${domicilio}`,
+    mes: `eq.${estado.mes}`
+  });
+
+  const hojas = {};
+  for (const r of data) {
+    const key = r.orden_principal && r.orden_principal !== r.orden
+                  ? r.orden_principal : r.orden;
+    if (!hojas[key]) {
+      hojas[key] = { ordenPpal: key, tipo: r.texto_breve, fechaFin: r.fecha_fin, ordenes: [] };
+    }
+    if (!hojas[key].ordenes.includes(r.orden)) hojas[key].ordenes.push(r.orden);
+  }
+
+  let ordenesRespondidas = new Set();
+  const respData = await sbGet("respuestas", {
+    select: "orden_ref",
+    domicilio: `eq.${domicilio}`
+  });
+  respData.forEach(r => ordenesRespondidas.add(String(r.orden_ref)));
+
+  const todasOrdenes = Object.values(hojas).flatMap(h => h.ordenes);
+  let conteoClaves = {};
+  if (todasOrdenes.length > 0) {
+    const dataClaves = await sbGet("claves_tareas", {
+      select: "orden",
+      orden: `in.(${todasOrdenes.join(",")})`,
+      mes: `eq.${estado.mes}`
+    });
+    const ordenAPpal = {};
+    Object.values(hojas).forEach(h => {
+      h.ordenes.forEach(o => { ordenAPpal[String(o)] = String(h.ordenPpal); });
+    });
+    dataClaves.forEach(r => {
+      const ppal = ordenAPpal[String(r.orden)] || String(r.orden);
+      conteoClaves[ppal] = (conteoClaves[ppal] || 0) + 1;
+    });
+  }
+
+  // Buscar MEINs creadas para estas ordenes
+  const todasOrdenesPpal = Object.values(hojas).map(h => h.ordenPpal);
+  let meinMap = {};
+  if (todasOrdenesPpal.length > 0) {
+    try {
+      const dataMeins = await sbGet("meins_pendientes", {
+        select: "orden,mein_creada",
+        orden:  `in.(${todasOrdenesPpal.join(",")})`,
+        estado: "eq.creada"
+      });
+      dataMeins.forEach(r => {
+        // Solo guardar si mein_creada es diferente a la orden (MEIN real)
+        if (r.mein_creada && String(r.mein_creada) !== String(r.orden)) {
+          meinMap[String(r.orden)] = r.mein_creada;
+        }
+      });
+    } catch (_) { /* silencioso intencional */ }
+  }
+
+  const lista = Object.values(hojas).map(h => ({
+    ordenPpal:  h.ordenPpal,
+    tipo:       h.tipo,
+    fechaFin:   h.fechaFin,
+    cantTareas: conteoClaves[String(h.ordenPpal)] || h.ordenes.length,
+    ordenes:    h.ordenes,
+    mein:       meinMap[String(h.ordenPpal)] || "Pendiente",
+    // Realizada si CUALQUIERA de sus ordenes individuales fue respondida
+    realizada:  h.ordenes.some(o => ordenesRespondidas.has(String(o)))
+  }));
+
+  return { ok: true, hojas: lista };
+}
+
+async function getTareas(ordenPpal, ordenesYaCalculadas) {
+  let ordenes = ordenesYaCalculadas && ordenesYaCalculadas.length > 0
+                  ? ordenesYaCalculadas : null;
+  let fechaInicio = "";
+  let fechaFin    = "";
+
+  if (!ordenes) {
+    const dataHojas = await sbGet("colegios_hojas", {
+      select: "orden,fecha_inicio,fecha_fin",
+      orden_principal: `eq.${ordenPpal}`
+    });
+    ordenes     = dataHojas.map(r => r.orden);
+    fechaInicio = dataHojas[0]?.fecha_inicio || "";
+    fechaFin    = dataHojas[0]?.fecha_fin    || "";
+    if (ordenes.length === 0) ordenes = [ordenPpal];
+  } else {
+    const dataFechas = await sbGet("colegios_hojas", {
+      select: "fecha_inicio,fecha_fin",
+      orden: `eq.${ordenesYaCalculadas[0]}`
+    });
+    fechaInicio = dataFechas[0]?.fecha_inicio || "";
+    fechaFin    = dataFechas[0]?.fecha_fin    || "";
+  }
+
+  const dataClaves = await sbGet("claves_tareas", {
+    select: "orden,clave,texto_breve,descripcion,orden_fila",
+    orden: `in.(${ordenes.join(",")})`,
+    order: "orden_fila.asc"
+  });
+
+  const tareas = dataClaves.map(r => ({
+    orden: r.orden, clave: r.clave,
+    texto: r.texto_breve, descripcion: r.descripcion
+  }));
+
+  // Buscar MEIN en meins_pendientes
+  let mein = "Pendiente";
+  try {
+    const dataMein = await sbGet("meins_pendientes", {
+      select: "mein_creada",
+      orden: `eq.${ordenPpal}`,
+      estado: "eq.creada"
+    });
+    if (dataMein && dataMein.length > 0 && dataMein[0].mein_creada) {
+      const meinCreada = String(dataMein[0].mein_creada);
+      // Si mein_creada es igual a la orden, no es una MEIN real
+      if (meinCreada !== String(ordenPpal)) {
+        mein = meinCreada;
+      }
+    }
+  } catch (_) { /* silencioso intencional */ }
+
+  // Si sigue sin MEIN real, buscar en respuestas (columna mein)
+  if (mein === "Pendiente") {
+    try {
+      const dataResp = await sbGet("respuestas", {
+        select: "mein",
+        orden_ref: `eq.${ordenPpal}`,
+        limit: "1"
+      });
+      if (dataResp && dataResp.length > 0 && dataResp[0].mein) {
+        const meinResp = String(dataResp[0].mein);
+        // Solo usar si es diferente a la orden
+        if (meinResp !== String(ordenPpal)) {
+          mein = meinResp;
+        }
+      }
+    } catch (_) { /* silencioso intencional */ }
+  }
+
+  return { ok: true, tareas, fechaInicio, fechaFin, mein };
+}
+
+async function apiPost(body) {
+  const filas = body.tareas.map(t => ({
+    mein:          t.mein,
+    orden_ref:     t.ordenRef,
+    domicilio:     t.domicilio,
+    tipo:          t.tipo,
+    respuesta:     t.respuesta,
+    operario:      t.operario,
+    jefe:          t.jefe,
+    observaciones: t.observaciones || "",
+    mes:           estado.mes || ""
+  }));
+  return await sbPost("respuestas", filas);
+}
+
+// ============================================================
+// BARRA DE PROGRESO DE TAREAS
+// ============================================================
+function actualizarProgreso() {
+  const wrap = document.getElementById("progreso-tareas-wrap");
+  if (!wrap) return;
+
+  const total = estado.tareas.length;
+  if (total === 0) return;
+
+  const completadas = Object.values(estado.respuestas).filter(r =>
+    r && (r.texto || r.opcion)
+  ).length;
+
+  const pct = Math.round((completadas / total) * 100);
+  const fill = document.getElementById("progreso-bar-fill");
+  const num  = document.getElementById("progreso-tareas-num");
+  const est  = document.getElementById("progreso-tareas-estado");
+
+  if (fill) {
+    fill.style.width = pct + "%";
+    if (completadas === total) {
+      fill.classList.add("completo");
+    } else {
+      fill.classList.remove("completo");
+    }
+  }
+  if (num) num.textContent = completadas + " / " + total;
+  if (est) {
+    if (completadas === 0) {
+      est.textContent = "Ninguna tarea completada aún";
+    } else if (completadas === total) {
+      est.textContent = "✓ Todas las tareas completadas — podés enviar";
+      est.style.color = "var(--success)";
+      est.style.fontWeight = "600";
+    } else {
+      est.textContent = (total - completadas) + " tarea(s) pendiente(s)";
+      est.style.color = "var(--muted)";
+      est.style.fontWeight = "400";
+    }
+  }
+}
+
+// ============================================================
+// MODAL DE CONFIRMACIÓN (reemplaza confirm() nativo)
+// ============================================================
+function confirmarModal(mensaje, icono = "⚠️") {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.id = "modal-confirmacion";
+    overlay.innerHTML = `
+      <div class="modal-card">
+        <div class="modal-icono">${icono}</div>
+        <div class="modal-titulo">Confirmar acción</div>
+        <div class="modal-sub">${mensaje}</div>
+        <div class="modal-acciones">
+          <button class="btn btn-back" onclick="cerrarModal(false)">Cancelar</button>
+          <button class="btn btn-warning" onclick="cerrarModal(true)">Confirmar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    window._modalResolve = resolve;
+  });
+}
+
+function cerrarModal(resultado) {
+  const overlay = document.getElementById("modal-confirmacion");
+  if (overlay) overlay.remove();
+  if (window._modalResolve) {
+    window._modalResolve(resultado);
+    window._modalResolve = null;
+  }
+}
+
+// ============================================================
+// OVERLAY ENVIANDO
+// ============================================================
+function mostrarEnviando() {
+  const overlay = document.createElement("div");
+  overlay.className = "enviando-overlay";
+  overlay.id = "enviando-overlay";
+  overlay.innerHTML = `
+    <div class="enviando-card">
+      <div class="enviando-spinner"></div>
+      <div class="enviando-titulo">Enviando respuestas...</div>
+      <div class="enviando-sub">No cerrés la pantalla.<br>Esto puede tardar unos segundos.</div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function mostrarExito(callback) {
+  const overlay = document.getElementById("enviando-overlay");
+  if (!overlay) { if (callback) callback(); return; }
+  overlay.querySelector(".enviando-card").innerHTML = `
+    <div class="enviando-exito-icon">✓</div>
+    <div class="enviando-titulo" style="color:var(--success)">¡Enviado con éxito!</div>
+    <div class="enviando-sub">Las respuestas fueron guardadas correctamente.</div>`;
+  setTimeout(() => {
+    overlay.remove();
+    if (callback) callback();
+  }, 1500);
+}
+
+function ocultarEnviando() {
+  const overlay = document.getElementById("enviando-overlay");
+  if (overlay) overlay.remove();
+}
+
+// ============================================================
+// PROGRESO LOCAL
+// ============================================================
+const STORAGE_KEY = "mepl_progreso";
+
+function guardarProgreso() {
+  if (!estado.hojaSeleccionada || !estado.domicilio) return;
+  const datos = {
+    mes:              estado.mes,
+    modo:             estado.modo,
+    domicilio:        estado.domicilio,
+    hojaSeleccionada: estado.hojaSeleccionada,
+    tareas:           estado.tareas,
+    respuestas:       estado.respuestas,
+    operario:         estado.operario,
+    jefe:             estado.jefe,
+    observaciones:    estado.observaciones,
+    fechaInicio:      estado.fechaInicio,
+    fechaFin:         estado.fechaFin,
+    mein:             estado.mein || "",
+    timestamp:        Date.now()
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(datos)); } catch(_) {}
+}
+
+function limpiarProgreso() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(_) {}
+}
+
+function cargarProgresoGuardado() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const datos = JSON.parse(raw);
+    // Expirar después de 24 horas
+    if (Date.now() - datos.timestamp > 86400000) { limpiarProgreso(); return null; }
+    return datos;
+  } catch(_) { return null; }
+}
+
+function mostrarBannerProgreso(datos, app) {
+  const hace = Math.round((Date.now() - datos.timestamp) / 60000);
+  const cuandoStr = hace < 60
+    ? `hace ${hace} minuto${hace !== 1 ? "s" : ""}`
+    : `hace ${Math.round(hace / 60)} hora${Math.round(hace/60) !== 1 ? "s" : ""}`;
+
+  const respuestas = Object.keys(datos.respuestas || {}).length;
+  const total      = (datos.tareas || []).length;
+
+  const banner = document.createElement("div");
+  banner.className = "progreso-banner";
+  banner.id = "progreso-banner";
+  banner.innerHTML = `
+    <div class="progreso-banner-info">
+      <div class="progreso-banner-titulo">📝 Formulario incompleto guardado</div>
+      <div class="progreso-banner-sub">
+        ${esc(datos.domicilio)} — ${esc(datos.hojaSeleccionada?.tipo || "")}
+        · ${respuestas}/${total} tareas completadas · ${cuandoStr}
+      </div>
+    </div>
+    <div class="progreso-banner-acciones">
+      <button class="btn btn-warning" onclick="continuarProgreso()">Continuar</button>
+      <button class="btn btn-back" onclick="descartarProgreso()">Descartar</button>
+    </div>`;
+  app.insertBefore(banner, app.firstChild);
+}
+
+function continuarProgreso() {
+  const datos = cargarProgresoGuardado();
+  if (!datos) return;
+  // Restaurar estado completo
+  estado.mes             = datos.mes;
+  estado.modo            = datos.modo;
+  estado.domicilio       = datos.domicilio;
+  estado.hojaSeleccionada = datos.hojaSeleccionada;
+  estado.tareas          = datos.tareas;
+  estado.respuestas      = datos.respuestas;
+  estado.operario        = datos.operario;
+  estado.jefe            = datos.jefe;
+  estado.observaciones   = datos.observaciones;
+  estado.fechaInicio     = datos.fechaInicio;
+  estado.fechaFin        = datos.fechaFin;
+  estado.mein            = datos.mein || "";
+  estado.paso            = 3;
+  estado.vista           = "formulario";
+  // Actualizar header mes
+  const headerMes = document.getElementById("header-mes");
+  if (headerMes) {
+    headerMes.textContent = datos.mes.toUpperCase() + " " + new Date().getFullYear();
+    headerMes.style.display = "inline";
+  }
+  const banner = document.getElementById("progreso-banner");
+  if (banner) banner.remove();
+  render();
+  // Restaurar respuestas visuales después del render
+  // Esperar al siguiente frame del navegador para restaurar
+  requestAnimationFrame(() => requestAnimationFrame(restaurarRespuestasVisuales));
+}
+
+function restaurarRespuestasVisuales() {
+  Object.entries(estado.respuestas).forEach(([key, r]) => {
+    const txt = document.getElementById("txt_" + key);
+    if (txt) txt.value = r.texto || "";
+    // Restaurar botón seleccionado
+    const btnContainer = txt?.closest(".tarea-respuesta")?.querySelector(".respuesta-opciones");
+    if (!btnContainer || !r.opcion) return;
+    btnContainer.querySelectorAll(".opcion-btn").forEach(btn => {
+      const esNA      = r.opcion === "No aplica" || r.opcion === "En obra";
+      const esInforme = r.opcion === "se adjunta informe de consumo";
+      if (btn.textContent.trim() === r.opcion) {
+        btn.classList.add(esNA ? "selected-na" : esInforme ? "selected-informe" : "selected");
+      }
+    });
+  });
+  // Restaurar operario y jefe
+  const inpOp = document.getElementById("inp-operario");
+  const inpJe = document.getElementById("inp-jefe");
+  const inpObs = document.getElementById("inp-observaciones");
+  if (inpOp)  inpOp.value  = estado.operario || "";
+  if (inpJe)  inpJe.value  = estado.jefe     || "";
+  if (inpObs) inpObs.value = estado.observaciones || "";
+  actualizarProgreso();
+}
+
+function descartarProgreso() {
+  limpiarProgreso();
+  const banner = document.getElementById("progreso-banner");
+  if (banner) banner.remove();
+}
+
+// ============================================================
+// Estado
+// ============================================================
+let estado = {
+  paso: -1, modo: "", tipoSeleccionado: "", mes: "",
+  domicilio: "", hojaSeleccionada: null,
+  tareas: [], respuestas: {}, operario: "", jefe: "",
+  fechaInicio: "", fechaFin: "", observaciones: "",
+  vista: "formulario"   // "formulario" | "admin"
+};
+
+function render() {
+  const app = document.getElementById("app");
+
+  if (estado.vista === "admin") {
+    renderAdmin();
+    return;
+  }
+
+  const btnInicio = document.getElementById("btn-inicio");
+  const btnVolver = document.getElementById("btn-volver");
+  if (btnInicio) btnInicio.style.display = estado.paso <= -1 ? "none" : "block";
+  if (btnVolver) btnVolver.style.display = estado.paso <= 0 ? "none" : "block";
+
+  if (estado.paso === -2) { app.innerHTML = ""; renderBienvenida(); return; }
+  if (estado.paso === -1) { app.innerHTML = ""; renderSelectorMes(); return; }
+  if (estado.paso === 0)  { app.innerHTML = ""; renderModo(); return; }
+
+  const pasos = estado.modo === "tipo"
+    ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
+    : ["Colegio", "Hoja", "Respuestas", "Confirmación"];
+
+  let html = `<div class="paso-indicator">`;
+  pasos.forEach((p, i) => {
+    const cls = i + 1 === estado.paso ? "activo" : i + 1 < estado.paso ? "completo" : "";
+    html += `<div class="paso ${cls}">${i + 1}. ${p}</div>`;
+  });
+  html += `</div>`;
+  app.innerHTML = html;
+
+  if (estado.modo === "tipo") {
+    if      (estado.paso === 1) renderTipos();
+    else if (estado.paso === 2) renderColegiosPorTipo();
+    else if (estado.paso === 3) { if (estado.tareas && estado.tareas.length > 0) renderFormularioTareas(); }
+    else if (estado.paso === 4) renderConfirmacion();
+  } else {
+    if      (estado.paso === 1) renderColegios();
+    else if (estado.paso === 2) renderHojas();
+    else if (estado.paso === 3) { if (estado.tareas && estado.tareas.length > 0) renderFormularioTareas(); }
+    else if (estado.paso === 4) renderConfirmacion();
+  }
+}
+
+// ============================================================
+// ADMIN — Panel de MEINs
+// ============================================================
+// ============================================================
+// PIN ADMIN
+// ============================================================
+const ADMIN_PIN = "4158";
+let pinIngresado = "";
+let pinVerificado = false;
+
+function irAdmin() {
+  if (pinVerificado) {
+    _abrirAdmin();
+    return;
+  }
+  mostrarPinOverlay();
+}
+
+function mostrarPinOverlay() {
+  pinIngresado = "";
+  const overlay = document.createElement("div");
+  overlay.className = "pin-overlay";
+  overlay.id = "pin-overlay";
+  overlay.innerHTML = `
+    <div class="pin-card">
+      <div class="pin-icon">🔐</div>
+      <div class="pin-title">Panel Administrador</div>
+      <div class="pin-sub">Ingresá el PIN de acceso</div>
+      <div class="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-numpad">
+        ${[1,2,3,4,5,6,7,8,9].map(n =>
+          `<button class="pin-btn" onclick="pinPresionar('${n}')">${n}</button>`
+        ).join("")}
+        <button class="pin-btn borrar" onclick="pinBorrar()">⌫</button>
+        <button class="pin-btn" onclick="pinPresionar('0')">0</button>
+        <button class="pin-btn borrar" onclick="pinCancelar()">✕</button>
+      </div>
+      <div class="pin-error-msg" id="pin-error"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function pinPresionar(digito) {
+  if (pinIngresado.length >= 4) return;
+  pinIngresado += digito;
+  actualizarDots();
+  if (pinIngresado.length === 4) {
+    setTimeout(verificarPin, 150);
+  }
+}
+
+function pinBorrar() {
+  pinIngresado = pinIngresado.slice(0, -1);
+  actualizarDots();
+  document.getElementById("pin-error").textContent = "";
+}
+
+function actualizarDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById("pd" + i);
+    if (!dot) return;
+    dot.classList.toggle("filled", i < pinIngresado.length);
+    dot.classList.remove("error");
+  }
+}
+
+function verificarPin() {
+  if (pinIngresado === ADMIN_PIN) {
+    pinVerificado = true;
+    pinCancelar();
+    _abrirAdmin();
+  } else {
+    // Mostrar error
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById("pd" + i);
+      if (dot) { dot.classList.remove("filled"); dot.classList.add("error"); }
+    }
+    document.getElementById("pin-error").textContent = "PIN incorrecto";
+    setTimeout(() => {
+      pinIngresado = "";
+      actualizarDots();
+      document.getElementById("pin-error").textContent = "";
+    }, 1200);
+  }
+}
+
+function pinCancelar() {
+  const overlay = document.getElementById("pin-overlay");
+  if (overlay) overlay.remove();
+}
+
+function _abrirAdmin() {
+  estado.vista = "admin";
+  document.getElementById("btn-inicio").style.display = "block";
+  document.getElementById("btn-volver").style.display = "none";
+  render();
+}
+
+// adminMes arranca con el mes actual en español
+const _mesesES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                  "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+let adminMes = _mesesES[new Date().getMonth()];
+let adminFiltro = "todos";
+let adminDatos = [];
+
+async function renderAdmin() {
+  const app = document.getElementById("app");
+
+  // Cargar meses disponibles dinámicamente
+  let opcionesMeses = `<option value="">Cargando...</option>`;
+  try {
+    const dataMeses = await sbGet("colegios_hojas", { select: "mes" });
+    const mesesDisp = [...new Set(dataMeses.map(r => r.mes).filter(Boolean))];
+    const orden = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    mesesDisp.sort((a, b) => orden.indexOf(a) - orden.indexOf(b));
+    // Si adminMes no está en la lista, usar el último
+    if (!mesesDisp.includes(adminMes)) adminMes = mesesDisp[mesesDisp.length - 1] || adminMes;
+    opcionesMeses = mesesDisp.map(m =>
+      `<option value="${m}" ${adminMes===m?"selected":""}>${m} ${ANIO}</option>`
+    ).join("");
+  } catch(_) {
+    opcionesMeses = `<option value="${adminMes}">${adminMes} ${ANIO}</option>`;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <h2>⚙ Panel de MEINs — Creación masiva</h2>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+        <label style="margin:0;font-weight:600;">Mes:</label>
+        <select id="admin-mes-sel" style="width:auto;" onchange="adminMes=this.value;cargarAdmin()">
+          ${opcionesMeses}
+        </select>
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:0.85rem;" onclick="cargarAdmin()">↺ Actualizar</button>
+        <button class="btn btn-warning" style="padding:8px 16px;font-size:0.85rem;" onclick="encolarTodos()">⚡ Encolar todos los pendientes</button>
+        <button class="btn-export" id="btn-exportar" onclick="exportarReporte()">📥 Exportar Excel</button>
+      </div>
+
+      <div id="admin-stats" class="admin-stats"></div>
+      <div class="admin-filtros" id="admin-filtros"></div>
+      <div id="admin-lista"><div class="loading">Cargando colegios...</div></div>
+    </div>`;
+
+  await cargarAdmin();
+}
+
+async function cargarAdmin() {
+  const listaEl   = document.getElementById("admin-lista");
+  const statsEl   = document.getElementById("admin-stats");
+  const filtrosEl = document.getElementById("admin-filtros");
+  if (!listaEl) return;
+  listaEl.innerHTML = `<div class="loading">Cargando...</div>`;
+
+  try {
+    // 1. Traer todos los colegios del mes
+    const dataColegios = await sbGet("colegios_hojas", {
+      select: "domicilio,orden,orden_principal,texto_breve",
+      mes: `eq.${adminMes}`
+    });
+
+    // Agrupar por domicilio → solo órdenes ORIGINALES (orden = orden_principal o sin orden_principal)
+    // Las MEINs creadas tienen orden != orden_principal y NO se cuentan
+    const colegiosMap = {};
+    for (const r of dataColegios) {
+      const dom  = r.domicilio;
+      const ord  = r.orden;
+      const ppal = r.orden_principal;
+      // Saltar MEINs creadas (tienen orden_principal distinto a orden)
+      if (ppal && ppal !== ord) continue;
+      if (!colegiosMap[dom]) colegiosMap[dom] = { domicilio: dom, ordenes: new Set() };
+      colegiosMap[dom].ordenes.add(ord);
+    }
+
+    // 2. Traer MEINs creadas de meins_pendientes donde estado = 'creada'
+    const pendientesData = await sbGet("meins_pendientes", {
+      select: "*",
+      mes: `eq.${adminMes}`
+    });
+
+    // Mapear orden → lista de registros en meins_pendientes
+    const pendientesMap = {};
+    pendientesData.forEach(p => {
+      if (!pendientesMap[p.orden]) pendientesMap[p.orden] = [];
+      pendientesMap[p.orden].push(p);
+    });
+
+    // 4. Construir lista de colegios con conteo real de MEINs
+    adminDatos = Object.values(colegiosMap).map(c => {
+      const ordenesList = [...c.ordenes];
+      const total = ordenesList.length;
+
+      // Contar cuántas órdenes tienen MEIN creada
+      let creadas   = 0;
+      let errores   = [];
+      let enCola    = 0;
+      let estadoCola = null;
+
+      ordenesList.forEach(o => {
+        const registros = pendientesMap[o] || [];
+        // Tomar el último registro de cada orden
+        const ultimo = registros[registros.length - 1];
+        if (!ultimo) return;
+        if (ultimo.estado === "creada")    creadas++;
+        if (ultimo.estado === "error")     errores.push({ orden: o, tipo: ultimo.tipo, msg: ultimo.error_msg });
+        if (ultimo.estado === "pendiente" || ultimo.estado === "procesando") enCola++;
+        if (!estadoCola) estadoCola = ultimo.estado;
+      });
+
+      // Determinar estado general del colegio
+      let estadoGeneral;
+      if (creadas === total && total > 0)      estadoGeneral = "completo";
+      else if (creadas > 0 && errores.length > 0) estadoGeneral = "parcial-error";
+      else if (creadas > 0)                    estadoGeneral = "parcial";
+      else if (errores.length > 0)             estadoGeneral = "error";
+      else if (enCola > 0)                     estadoGeneral = "encolada";
+      else                                     estadoGeneral = "sin-mein";
+
+      return {
+        domicilio:     c.domicilio,
+        ordenes:       ordenesList,
+        total,
+        creadas,
+        errores,
+        enCola,
+        estadoGeneral,
+        estadoCola
+      };
+    }).sort((a, b) => a.domicilio.localeCompare(b.domicilio));
+
+    // Stats
+    const total      = adminDatos.length;
+    const conMein    = adminDatos.filter(c => c.estadoGeneral === "completo").length;
+    const sinMein    = adminDatos.filter(c => c.estadoGeneral === "sin-mein").length;
+    const encoladas  = adminDatos.filter(c => c.estadoGeneral === "encolada").length;
+    const parciales  = adminDatos.filter(c => c.estadoGeneral === "parcial" || c.estadoGeneral === "parcial-error").length;
+    const conError   = adminDatos.filter(c => c.estadoGeneral === "error" || c.estadoGeneral === "parcial-error").length;
+
+    if (statsEl) statsEl.innerHTML = `
+      <div class="admin-stat-card"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">Total colegios</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--success)">${conMein}</div><div class="admin-stat-label">Completos</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--warn)">${sinMein}</div><div class="admin-stat-label">Sin MEIN</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--brand)">${encoladas}</div><div class="admin-stat-label">En cola</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--warn)">${parciales}</div><div class="admin-stat-label">Parciales</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--danger)">${conError}</div><div class="admin-stat-label">Con error</div></div>`;
+
+    if (filtrosEl) filtrosEl.innerHTML = `
+      <span style="font-size:0.82rem;color:#666;">Filtrar:</span>
+      ${[["todos","Todos"],["sin-mein","Sin MEIN"],["encolada","En cola"],["con-mein","Con MEIN"],["error","Error"]]
+        .map(([v,l]) => `<button class="filtro-btn ${adminFiltro===v?"activo":""}" onclick="setFiltroAdmin('${v}')">${l}</button>`).join("")}`;
+
+    renderListaAdmin();
+
+  } catch (e) {
+    listaEl.innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+function setFiltroAdmin(f) {
+  adminFiltro = f;
+  document.querySelectorAll(".filtro-btn").forEach(b => {
+    b.classList.toggle("activo", b.textContent.toLowerCase().includes(f === "todos" ? "todos" : f));
+  });
+  renderListaAdmin();
+}
+
+function renderListaAdmin() {
+  const listaEl = document.getElementById("admin-lista");
+  if (!listaEl) return;
+
+  let datos = adminDatos;
+  if (adminFiltro === "sin-mein")  datos = datos.filter(c => c.estadoGeneral === "sin-mein");
+  if (adminFiltro === "encolada")  datos = datos.filter(c => c.estadoGeneral === "encolada");
+  if (adminFiltro === "con-mein")  datos = datos.filter(c => c.estadoGeneral === "completo");
+  if (adminFiltro === "error")     datos = datos.filter(c => c.estadoGeneral === "error" || c.estadoGeneral === "parcial-error");
+
+  if (datos.length === 0) {
+    listaEl.innerHTML = `<div class="admin-vacio">No hay colegios en esta categoría.</div>`;
+    return;
+  }
+
+  let html = "";
+  datos.forEach((c, idx) => {
+    const idxGlobal = adminDatos.indexOf(c);
+    let rowClass = "";
+    let badge    = "";
+    let acciones = "";
+    let detalle  = "";
+
+    if (c.estadoGeneral === "completo") {
+      rowClass = "con-mein";
+      badge    = `<span class="hoja-badge badge-realizada">✓ ${c.creadas}/${c.total} MEINs creadas</span>`;
+      acciones = `<button class="btn-sm btn-sm-danger" onclick="cancelarMeinIdx(${idxGlobal})">↺ Re-encolar</button>`;
+
+    } else if (c.estadoGeneral === "parcial") {
+      rowClass = "encolada";
+      badge    = `<span class="hoja-badge badge-parcial">⚠ ${c.creadas}/${c.total} MEINs creadas</span>`;
+      acciones = `<button class="btn-sm btn-sm-warning" onclick="encolarColegioIdx(${idxGlobal})">+ Completar MEINs</button>`;
+
+    } else if (c.estadoGeneral === "parcial-error") {
+      rowClass = "error-mein";
+      badge    = `<span class="hoja-badge badge-error-mein">✗ ${c.creadas}/${c.total} — ${c.errores.length} error(es)</span>`;
+      acciones = `
+        <button class="btn-sm btn-sm-warning" onclick="encolarColegioIdx(${idxGlobal})">↺ Reintentar errores</button>
+        <button class="btn-sm btn-sm-danger"  onclick="cancelarMeinIdx(${idxGlobal})">✕ Limpiar</button>`;
+      detalle = c.errores.map(e =>
+        `<div class="admin-error-detalle">✗ Orden ${esc(e.orden)} — ${esc(e.tipo)}: ${esc(e.msg || "error desconocido")}</div>`
+      ).join("");
+
+    } else if (c.estadoGeneral === "error") {
+      rowClass = "error-mein";
+      badge    = `<span class="hoja-badge badge-error-mein">✗ ${c.errores.length} error(es)</span>`;
+      acciones = `
+        <button class="btn-sm btn-sm-warning" onclick="encolarColegioIdx(${idxGlobal})">↺ Reintentar</button>
+        <button class="btn-sm btn-sm-danger"  onclick="cancelarMeinIdx(${idxGlobal})">✕ Limpiar</button>`;
+      detalle = c.errores.map(e =>
+        `<div class="admin-error-detalle">✗ Orden ${esc(e.orden)} — ${esc(e.tipo)}: ${esc(e.msg || "error desconocido")}</div>`
+      ).join("");
+
+    } else if (c.estadoGeneral === "encolada") {
+      rowClass = "encolada";
+      badge    = `<span class="hoja-badge badge-pendiente-mein">⏳ ${c.enCola}/${c.total} en cola</span>`;
+      acciones = `<button class="btn-sm btn-sm-danger" onclick="cancelarMeinIdx(${idxGlobal})">✕ Cancelar</button>`;
+
+    } else {
+      rowClass = "sin-mein";
+      badge    = `<span class="hoja-badge badge-pendiente-mein">⚠ Sin MEIN (${c.total} órdenes)</span>`;
+      acciones = `<button class="btn-sm btn-sm-warning" onclick="encolarColegioIdx(${idxGlobal})">+ Encolar MEIN</button>`;
+    }
+
+    html += `
+      <div class="admin-colegio-row ${rowClass}">
+        <div class="admin-col-info">
+          <div class="admin-col-nombre">📍 ${esc(c.domicilio)}</div>
+          <div class="admin-col-detalle">Órdenes: ${c.ordenes.join(", ")}</div>
+          ${detalle}
+        </div>
+        <div class="admin-col-acciones">
+          ${badge}
+          ${acciones}
+        </div>
+      </div>`;
+  });
+
+  listaEl.innerHTML = html;
+}
+
+async function encolarColegioIdx(idx) {
+  const c = adminDatos[idx];
+  if (!c) return;
+  await encolarColegio(c.domicilio, c.ordenes);
+}
+
+async function cancelarMeinIdx(idx) {
+  const c = adminDatos[idx];
+  if (!c) return;
+  await cancelarMein(c.domicilio, c.ordenes[0]);
+}
+
+async function encolarColegio(domicilio, ordenes) {
+  const colegio = adminDatos.find(c => c.domicilio === domicilio);
+  if (!colegio) return;
+
+  // Cancelar cualquier pendiente/error anterior para este colegio
+  await cancelarMeinSilencioso(ordenes);
+
+  try {
+    // Traer el tipo real de cada orden desde colegios_hojas
+    const dataOrdenes = await sbGet("colegios_hojas", {
+      select: "orden,texto_breve",
+      orden:  `in.(${ordenes.join(",")})`,
+      mes:    `eq.${adminMes}`
+    });
+
+    // Mapear orden -> tipo
+    const tipoMap = {};
+    dataOrdenes.forEach(r => { tipoMap[String(r.orden)] = r.texto_breve || "MEIN"; });
+
+    const filas = ordenes.map(o => ({
+      orden:     o,
+      domicilio: domicilio,
+      tipo:      tipoMap[String(o)] || "MEIN",
+      mes:       adminMes,
+      estado:    "pendiente"
+    }));
+
+    await sbPost("meins_pendientes", filas);
+    showToast(`✓ ${domicilio} encolada (${filas.length} órdenes)`, "ok");
+    await cargarAdmin();
+  } catch (e) {
+    showToast("Error al encolar: " + e.message, "err");
+  }
+}
+
+async function cancelarMein(domicilio, orden) {
+  const ok1 = await confirmarModal(`¿Cancelar y limpiar la cola de MEINs para <strong>${esc(domicilio)}</strong>?`, "🗑️");
+  if (!ok1) return;
+  const colegio = adminDatos.find(c => c.domicilio === domicilio);
+  const ordenes = colegio ? colegio.ordenes : [orden];
+  await cancelarMeinSilencioso(ordenes);
+  showToast("Cola limpiada", "ok");
+  await cargarAdmin();
+}
+
+async function cancelarMeinSilencioso(ordenes) {
+  for (const o of ordenes) {
+    try {
+      await sbDelete("meins_pendientes", {
+        orden: `eq.${o}`,
+        mes:   `eq.${adminMes}`,
+        estado: `in.(pendiente,error,creada)`
+      });
+    } catch (_) { /* silencioso intencional */ }
+  }
+}
+
+async function encolarTodos() {
+  const sinMein = adminDatos.filter(c => !c.tieneMein && !c.estadoCola);
+  if (sinMein.length === 0) {
+    showToast("No hay colegios sin MEIN para encolar", "");
+    return;
+  }
+  const ok2 = await confirmarModal(`¿Encolar <strong>${sinMein.length} colegio(s)</strong> sin MEIN en ${adminMes} ${ANIO}?`, "⚡");
+  if (!ok2) return;
+
+  try {
+    // Traer tipos reales de todas las órdenes de una sola vez
+    const todasOrdenes = sinMein.flatMap(c => c.ordenes);
+    const dataOrdenes = await sbGet("colegios_hojas", {
+      select: "orden,texto_breve,domicilio",
+      orden:  `in.(${todasOrdenes.join(",")})`,
+      mes:    `eq.${adminMes}`
+    });
+
+    const tipoMap = {};
+    dataOrdenes.forEach(r => { tipoMap[String(r.orden)] = r.texto_breve || "MEIN"; });
+
+    let filas = [];
+    sinMein.forEach(c => {
+      c.ordenes.forEach(o => {
+        filas.push({
+          orden:     o,
+          domicilio: c.domicilio,
+          tipo:      tipoMap[String(o)] || "MEIN",
+          mes:       adminMes,
+          estado:    "pendiente"
+        });
+      });
+    });
+
+    // Insertar en batches de 50
+    for (let i = 0; i < filas.length; i += 50) {
+      await sbPost("meins_pendientes", filas.slice(i, i + 50));
+    }
+    showToast(`✓ ${sinMein.length} colegio(s) encolados (${filas.length} órdenes)`, "ok");
+    await cargarAdmin();
+  } catch (e) {
+    showToast("Error: " + e.message, "err");
+  }
+}
+
+
+// ============================================================
+// PASO -1 — Elegir mes
+// ============================================================
+// ============================================================
+// EXPORTAR REPORTE EXCEL
+// ============================================================
+async function exportarReporte() {
+  const btn = document.getElementById("btn-exportar");
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Generando..."; }
+
+  try {
+    // Traer todos los datos necesarios
+    const [dataColegios, dataMeins, dataRespuestas] = await Promise.all([
+      sbGet("colegios_hojas", { select: "domicilio,orden,orden_principal,texto_breve", mes: `eq.${adminMes}` }),
+      sbGet("meins_pendientes", { select: "orden,mein_creada,estado,error_msg", mes: `eq.${adminMes}` }),
+      sbGet("respuestas", { select: "domicilio,tipo,orden_ref,operario,created_at", mes: `eq.${adminMes}` })
+    ]);
+
+    // Construir mapa de MEINs
+    const meinMap = {};
+    dataMeins.forEach(m => {
+      if (!meinMap[m.orden]) meinMap[m.orden] = m;
+    });
+
+    // Construir mapa de respuestas por domicilio+tipo
+    const respMap = {};
+    dataRespuestas.forEach(r => {
+      const key = `${r.domicilio}||${r.tipo}`;
+      if (!respMap[key]) respMap[key] = [];
+      respMap[key].push(r);
+    });
+
+    // Construir filas agrupando por domicilio + orden principal
+    const colegiosMap = {};
+    for (const r of dataColegios) {
+      const ppal = r.orden_principal && r.orden_principal !== r.orden ? r.orden_principal : r.orden;
+      const key  = `${r.domicilio}||${ppal}`;
+      if (!colegiosMap[key]) {
+        colegiosMap[key] = {
+          domicilio: r.domicilio,
+          ordenPpal: ppal,
+          tipo: r.texto_breve,
+          ordenes: new Set()
+        };
+      }
+      colegiosMap[key].ordenes.add(r.orden);
+    }
+
+    // Construir filas del reporte
+    const filas = Object.values(colegiosMap).map(col => {
+      const mein      = meinMap[col.ordenPpal];
+      const meinNum   = mein?.mein_creada || "—";
+      const estadoMein = mein?.estado === "creada" ? "Creada" :
+                         mein?.estado === "error"  ? "Error" :
+                         mein?.estado === "pendiente" ? "En cola" : "Sin MEIN";
+
+      const respKey   = `${col.domicilio}||${col.tipo}`;
+      const resps     = respMap[respKey] || [];
+      const respondida = resps.length > 0 ? "Sí" : "No";
+      const operario  = resps.length > 0 ? resps[0].operario : "—";
+      const fecha     = resps.length > 0
+        ? new Date(resps[0].created_at).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })
+        : "—";
+
+      return {
+        "Domicilio":        col.domicilio,
+        "Tipo de tarea":    col.tipo || "—",
+        "N° Orden":         col.ordenPpal,
+        "MEIN":             meinNum,
+        "Estado MEIN":      estadoMein,
+        "Respondida":       respondida,
+        "Operario":         operario,
+        "Fecha de envío":   fecha,
+        "Mes":              adminMes,
+      };
+    }).sort((a, b) => a["Domicilio"].localeCompare(b["Domicilio"]));
+
+    // Generar CSV (compatible con Excel)
+    const cols = ["Domicilio","Tipo de tarea","N° Orden","MEIN","Estado MEIN","Respondida","Operario","Fecha de envío","Mes"];
+    const bom  = "﻿"; // BOM para que Excel reconozca UTF-8
+    const sep  = ";";      // punto y coma — estándar en Excel español
+
+    const header = cols.join(sep);
+    const rows   = filas.map(f =>
+      cols.map(col => {
+        const val = String(f[col] || "").replace(/"/g, '""');
+        return val.includes(sep) || val.includes("\n") ? `"${val}"` : val;
+      }).join(sep)
+    );
+
+    const csv = bom + header + "\n" + rows.join("\n");
+
+    // Descargar
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `MEPL_${adminMes}_${ANIO}_reporte.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast(`✓ Reporte exportado — ${filas.length} colegios`, "ok");
+
+  } catch (e) {
+    showToast("Error al exportar: " + e.message, "err");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "📥 Exportar Excel"; }
+  }
+}
+
+// ============================================================
+// BIENVENIDA
+// ============================================================
+function renderBienvenida() {
+  const app = document.getElementById("app");
+
+  // Mostrar banner de progreso si hay uno guardado
+  const progresoGuardado = cargarProgresoGuardado();
+
+  app.innerHTML = `
+    <div class="bienvenida-hero">
+      <div class="bienvenida-logo">
+        <span class="bienvenida-logo-badge">MEPL</span>
+        <span class="bienvenida-logo-empresa">Indaltec SA</span>
+      </div>
+      <div class="bienvenida-titulo">Sistema de Gestión de<br>Mantenimiento Escolar</div>
+      <div class="bienvenida-sub">
+        Registro digital de respuestas operativas<br>
+        Comuna 6 · Ciudad de Buenos Aires
+      </div>
+      <button class="bienvenida-btn" onclick="iniciarFormulario()">
+        Ingresar al sistema →
+      </button>
+    </div>
+
+    <div class="bienvenida-features">
+      <div class="bienvenida-feature">
+        <div class="bienvenida-feature-icono">🏫</div>
+        <div>
+          <div class="bienvenida-feature-titulo">Colegios</div>
+          <div class="bienvenida-feature-desc">Registrá respuestas por establecimiento</div>
+        </div>
+      </div>
+      <div class="bienvenida-feature">
+        <div class="bienvenida-feature-icono">📋</div>
+        <div>
+          <div class="bienvenida-feature-titulo">Tareas</div>
+          <div class="bienvenida-feature-desc">Completá las hojas de mantenimiento</div>
+        </div>
+      </div>
+      <div class="bienvenida-feature">
+        <div class="bienvenida-feature-icono">⚡</div>
+        <div>
+          <div class="bienvenida-feature-titulo">SAP</div>
+          <div class="bienvenida-feature-desc">Sincronización automática con el sistema</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bienvenida-footer">
+      <div class="bienvenida-footer-icono">📱</div>
+      <div class="bienvenida-footer-texto">
+        <strong>Optimizado para celular.</strong>
+        Podés completar el formulario desde cualquier dispositivo con conexión a internet.
+      </div>
+    </div>`;
+
+  if (progresoGuardado) mostrarBannerProgreso(progresoGuardado, app);
+}
+
+function iniciarFormulario() {
+  estado.paso = -1;
+  render();
+}
+
+async function renderSelectorMes() {
+  const app = document.getElementById("app");
+
+  // Mostrar loading mientras carga
+  app.innerHTML = `
+    <div class="card">
+      <h2>Seleccioná el período</h2>
+      <div class="loading">Cargando períodos...</div>
+    </div>`;
+
+  // Mostrar banner de progreso si hay uno guardado
+  const progresoGuardado = cargarProgresoGuardado();
+  if (progresoGuardado) mostrarBannerProgreso(progresoGuardado, app);
+
+  try {
+    // Traer meses distintos desde Supabase
+    const data = await sbGet("colegios_hojas", { select: "mes" });
+    const meses = [...new Set(data.map(r => r.mes).filter(Boolean))];
+
+    // Orden cronológico
+    const orden = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    meses.sort((a, b) => orden.indexOf(a) - orden.indexOf(b));
+
+    // Icono por mes
+    const iconos = {}; // siempre 📅;
+
+    // Grid adaptable: 2 columnas si hay 2+, 1 si hay solo 1
+    const cols = meses.length === 1 ? "1fr" : "1fr 1fr";
+
+    let cards = meses.map(mes => `
+      <div class="mes-card" onclick="seleccionarMes('${mes}')">
+        <div class="mes-icono">📅</div>
+        <div class="mes-nombre">${mes}</div>
+        <div class="mes-anio">${ANIO}</div>
+      </div>`).join("");
+
+    app.innerHTML = `
+      <div class="card">
+        <h2>Seleccioná el período</h2>
+        <div class="mes-grid" style="grid-template-columns:${cols}">
+          ${cards}
+        </div>
+      </div>`;
+
+  } catch (e) {
+    logError(e.message, "selector-mes");
+    app.innerHTML = `
+      <div class="card">
+        <h2>Seleccioná el período</h2>
+        <div class="error-msg" style="margin-bottom:16px;">
+          📡 ${e.message}
+        </div>
+        <button class="btn btn-primary" onclick="renderSelectorMes()">↺ Reintentar</button>
+      </div>`;
+  }
+}
+
+function seleccionarMes(mes) {
+  estado.mes = mes;
+  estado.paso = 0;
+  adminMes = mes;
+  const headerMes = document.getElementById("header-mes");
+  if (headerMes) {
+    headerMes.textContent = mes.toUpperCase() + " " + new Date().getFullYear();
+    headerMes.style.display = "inline";
+  }
+  render();
+}
+
+// ============================================================
+// PASO 0 — Elegir modo
+// ============================================================
+function renderModo() {
+  const app = document.getElementById("app");
+  let adminBtn = IS_ADMIN ? `
+    <div class="modo-card" onclick="irAdmin()" style="border-color:#2d1a5c;">
+      <span class="modo-icono">⚙</span>
+      <span class="modo-titulo" style="color:#2d1a5c;">Panel MEINs</span>
+      <span class="modo-desc">Crear y gestionar MEINs por colegio (solo admin)</span>
+    </div>` : "";
+
+  app.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #e8edf2;">
+        <h2 style="margin:0;padding:0;border:none;">¿Cómo querés buscar?</h2>
+        <span style="background:#e8a020;color:#1a1a1a;border-radius:20px;padding:4px 14px;font-size:0.82rem;font-weight:700;">${(estado.mes || "").toUpperCase()} ${ANIO}</span>
+      </div>
+      <div class="modo-grid">
+        <div class="modo-card" onclick="seleccionarModo('colegio')">
+          <span class="modo-icono">🏫</span>
+          <span class="modo-titulo">Por colegio</span>
+          <span class="modo-desc">Elegís tu establecimiento y ves todas las hojas disponibles</span>
+        </div>
+        <div class="modo-card" onclick="seleccionarModo('tipo')">
+          <span class="modo-icono">📋</span>
+          <span class="modo-titulo">Por tipo de tarea</span>
+          <span class="modo-desc">Elegís el tipo (Saneamiento, Gas, etc.) y ves todos los colegios</span>
+        </div>
+        ${adminBtn}
+      </div>
+    </div>`;
+}
+
+function irInicio() {
+  estado = {
+    paso: -2, modo: "", tipoSeleccionado: "", mes: "",
+    domicilio: "", hojaSeleccionada: null,
+    tareas: [], respuestas: {}, operario: "", jefe: "",
+    fechaInicio: "", fechaFin: "", observaciones: "",
+    vista: "formulario"
+  };
+  const headerMes = document.getElementById("header-mes");
+  if (headerMes) headerMes.style.display = "none";
+  render();
+}
+
+function seleccionarModo(modo) {
+  estado.modo = modo;
+  estado.paso = 1;
+  render();
+}
+
+// ============================================================
+// MODO TIPO — Paso 1
+// ============================================================
+async function renderTipos() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card">
+    <h2>Seleccioná el tipo de tarea</h2>
+    <div id="contenido-tipos" class="loading">Cargando tipos...</div>
+  </div>`;
+
+  try {
+    const data = await sbGet("colegios_hojas", { select: "texto_breve", mes: `eq.${estado.mes}` });
+    const tipos = [...new Set(data.map(r => r.texto_breve).filter(Boolean))].sort();
+
+    const iconos = {
+      "GAS":"🔥","AGUA":"💧","ELECTRICA":"⚡","ELECTR":"⚡",
+      "SANEAMIENTO":"🧹","ESTRUCTURA":"🏗️","MAMPOSTERIA":"🧱",
+      "CALEFACCION":"♨️","INCENDIO":"🚒","PLUVIALES":"🌧️",
+      "CLOACAL":"🚰","BAJA TENSION":"🔌","MOBILIARIO":"🪑",
+      "CUBIERTA":"🏠","PREDIO":"🌳","TERMINACIONES":"🎨",
+      "CERRAMIENTO":"🚪","ELEVADORA":"🛗","PLATAFORMA":"🛗"
+    };
+    function getIcono(tipo) {
+      const t = tipo.toUpperCase();
+      for (const [k, v] of Object.entries(iconos)) if (t.includes(k)) return v;
+      return "📋";
+    }
+
+    let html = `<div class="tipos-grid">`;
+    tipos.forEach(t => {
+      html += `<div class="tipo-card" onclick="seleccionarTipo('${esc(t)}')">
+        <span class="tipo-icono">${getIcono(t)}</span>${esc(t)}</div>`;
+    });
+    html += `</div><br><button class="btn btn-back" onclick="volverModo()">← Cambiar modo</button>`;
+    setContenido("contenido-tipos", html);
+  } catch (e) {
+    setContenido("contenido-tipos", `<div class="error-msg">Error: ${e.message}</div>`);
+  }
+}
+
+function seleccionarTipo(tipo) {
+  estado.tipoSeleccionado = tipo;
+  estado.paso = 2;
+  render();
+}
+
+// ============================================================
+// MODO TIPO — Paso 2
+// ============================================================
+async function renderColegiosPorTipo() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card">
+    <h2>${esc(estado.tipoSeleccionado)}</h2>
+    <div id="contenido-colegios-tipo" class="loading">Cargando colegios...</div>
+  </div>`;
+
+  try {
+    const data = await sbGet("colegios_hojas", {
+      select: "domicilio,orden,orden_principal,fecha_fin",
+      texto_breve: `eq.${estado.tipoSeleccionado}`,
+      mes: `eq.${estado.mes}`
+    });
+
+    const colegios = {};
+    for (const r of data) {
+      const dom  = r.domicilio;
+      const ppal = r.orden_principal && r.orden_principal !== r.orden ? r.orden_principal : r.orden;
+      if (!colegios[dom]) colegios[dom] = { domicilio: dom, ordenPpal: ppal, fechaFin: r.fecha_fin, ordenes: [] };
+      if (!colegios[dom].ordenes.includes(r.orden)) colegios[dom].ordenes.push(r.orden);
+    }
+
+    const ordenesAll = Object.values(colegios).map(c => c.ordenPpal);
+    let respondidas = new Set();
+    if (ordenesAll.length > 0) {
+      const respData = await sbGet("respuestas", {
+        select: "orden_ref",
+        orden_ref: `in.(${ordenesAll.join(",")})`
+      });
+      respData.forEach(r => respondidas.add(String(r.orden_ref)));
+    }
+
+    const todasOrdenes = Object.values(colegios).flatMap(c => c.ordenes);
+    let conteoClaves = {};
+    if (todasOrdenes.length > 0) {
+      const dataClaves = await sbGet("claves_tareas", {
+        select: "orden",
+        orden: `in.(${todasOrdenes.join(",")})`
+      });
+      const ordenAPpal = {};
+      Object.values(colegios).forEach(c => {
+        c.ordenes.forEach(o => { ordenAPpal[String(o)] = String(c.ordenPpal); });
+      });
+      dataClaves.forEach(r => {
+        const ppal = ordenAPpal[String(r.orden)] || String(r.orden);
+        conteoClaves[ppal] = (conteoClaves[ppal] || 0) + 1;
+      });
+    }
+
+    const lista = Object.values(colegios).map(c => ({
+      ...c,
+      cantTareas: conteoClaves[String(c.ordenPpal)] || c.ordenes.length,
+      realizada: respondidas.has(String(c.ordenPpal))
+    })).sort((a, b) => a.domicilio.localeCompare(b.domicilio));
+
+    if (lista.length === 0) {
+      setContenido("contenido-colegios-tipo", `<div class="error-msg">No hay colegios con este tipo de tarea.</div>`);
+      return;
+    }
+
+    let html = `<p style="font-size:0.85rem;color:#666;margin-bottom:14px;">
+      ${lista.filter(c => !c.realizada).length} pendiente(s) · ${lista.filter(c => c.realizada).length} realizada(s)</p>`;
+
+    lista.forEach(c => {
+      if (c.realizada) {
+        html += `<div class="colegio-tipo-item realizada">
+          <div><div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+          <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: '+esc(c.fechaFin):''}</div></div>
+          <div class="hoja-badge badge-realizada">✓ Realizada</div></div>`;
+      } else {
+        html += `<div class="colegio-tipo-item" onclick="seleccionarColegioTipo(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+          <div><div class="hoja-tipo">📍 ${esc(c.domicilio)}</div>
+          <div class="hoja-info">Orden: ${esc(c.ordenPpal)}${c.fechaFin ? ' · Vence: '+esc(c.fechaFin):''}</div></div>
+          <div class="hoja-badge">${c.cantTareas} tarea${c.cantTareas !== 1 ? 's':''}</div></div>`;
+      }
+    });
+
+    html += `<br><button class="btn btn-back" onclick="volver()">← Cambiar tipo</button>`;
+    setContenido("contenido-colegios-tipo", html);
+  } catch (e) {
+    setContenido("contenido-colegios-tipo", `<div class="error-msg">Error: ${e.message}</div>`);
+  }
+}
+
+async function seleccionarColegioTipo(colegio) {
+  estado.domicilio = colegio.domicilio;
+  estado.hojaSeleccionada = {
+    ordenPpal: colegio.ordenPpal, tipo: estado.tipoSeleccionado,
+    fechaFin: colegio.fechaFin, ordenes: colegio.ordenes
+  };
+  estado.paso = 3;
+  render();
+
+  const app = document.getElementById("app");
+  let cardTareas1 = document.getElementById("card-tareas");
+  if (!cardTareas1) {
+    cardTareas1 = document.createElement("div");
+    cardTareas1.className = "card";
+    cardTareas1.id = "card-tareas";
+    app.appendChild(cardTareas1);
+  }
+  cardTareas1.innerHTML = `<div class="loading">Cargando tareas...</div>`;
+  try {
+    const res = await getTareas(colegio.ordenPpal, colegio.ordenes);
+    if (!res.ok) throw new Error(res.error);
+    estado.tareas = res.tareas; estado.fechaInicio = res.fechaInicio || "";
+    estado.fechaFin = res.fechaFin || ""; estado.respuestas = {};
+    estado.mein = res.mein || "Pendiente";
+    renderFormularioTareas();
+  } catch (e) {
+    logError(e.message, "formulario-tareas");
+    logError(e.message, "cargarTareas");
+    document.getElementById("card-tareas").innerHTML =
+      `<div class="error-msg" style="margin-bottom:12px;">📡 ${e.message}</div>
+       <button class="btn btn-back" onclick="volver()">← Volver</button>`;
+  }
+}
+
+function volverModo() { estado.paso = 0; estado.modo = ""; estado.tipoSeleccionado = ""; render(); }
+
+// ============================================================
+// MODO COLEGIO — Pasos 1 y 2
+// ============================================================
+async function renderColegios() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card">
+    <h2>Seleccioná tu establecimiento</h2>
+    <div id="contenido-colegios" class="loading">Cargando colegios...</div>
+  </div>`;
+  try {
+    const res = await getColegios();
+    let html = `
+      <div class="buscar-colegio-wrap">
+        <span class="buscar-icon">🔍</span>
+        <input type="text" placeholder="Buscar por dirección..."
+          oninput="filtrarColegios(this.value)">
+      </div>
+      <div class="colegios-grid" id="lista-colegios">`;
+    res.colegios.forEach(c => {
+      html += `<div class="colegio-card colegio-item"
+        onclick="seleccionarColegio(this.dataset.valor)"
+        data-valor="${esc(c)}" data-nombre="${c.toLowerCase()}">
+        <div class="colegio-icono">🏫</div>
+        <div class="colegio-nombre">${esc(c)}</div>
+        <span class="colegio-flecha">›</span></div>`;
+    });
+    html += `</div>`;
+    setContenido("contenido-colegios", html);
+  } catch (e) {
+    logError(e.message, "renderColegios");
+    setContenido("contenido-colegios", `<div class="error-msg" style="margin-bottom:12px;">📡 ${e.message}</div>
+       <button class="btn btn-back" onclick="renderColegios()">↺ Reintentar</button>`);
+  }
+}
+
+function filtrarColegios(texto) {
+  const filtro = texto.toLowerCase();
+  document.querySelectorAll(".colegio-item").forEach(el => {
+    el.style.display = el.dataset.nombre.includes(filtro) ? "flex" : "none";
+  });
+}
+
+function seleccionarColegio(domicilio) {
+  if (!domicilio) return;
+  estado.domicilio = domicilio;
+  estado.paso = 2;
+  render();
+}
+
+async function renderHojas() {
+  const app = document.getElementById("app");
+  app.innerHTML += `<div class="card"><h2>${esc(estado.domicilio)}</h2>
+    <div id="contenido-hojas" class="loading">Cargando hojas...</div></div>`;
+  try {
+    const res = await getHojas(estado.domicilio);
+    if (!res.ok) throw new Error(res.error);
+
+    let html = `<p style="font-size:0.85rem;color:#666;margin-bottom:14px;">
+      Seleccioná la hoja que vas a completar:</p>`;
+
+    if (res.hojas.length === 0) {
+      html += `<div class="error-msg">No hay hojas disponibles para este colegio.</div>`;
+    } else {
+      res.hojas.forEach(h => {
+        if (h.realizada) {
+          html += `<div class="hoja-item realizada">
+            <div><div class="hoja-tipo">${esc(h.tipo)}</div>
+            <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin?' · Vence: '+esc(h.fechaFin):''} · MEIN: ${esc(h.mein)}</div></div>
+            <div class="hoja-badge badge-realizada">✓ Realizada</div></div>`;
+        } else {
+          html += `<div class="hoja-item" onclick="seleccionarHoja(${JSON.stringify(h).replace(/"/g,'&quot;')})">
+            <div><div class="hoja-tipo">${esc(h.tipo)}</div>
+            <div class="hoja-info">Orden: ${esc(h.ordenPpal)}${h.fechaFin?' · Vence: '+esc(h.fechaFin):''} · MEIN: ${esc(h.mein)}</div></div>
+            <div class="hoja-badge">${h.cantTareas} tarea${h.cantTareas!==1?'s':''}</div></div>`;
+        }
+      });
+    }
+    html += `<br><button class="btn btn-back" onclick="volver()">← Cambiar colegio</button>`;
+    setContenido("contenido-hojas", html);
+  } catch (e) {
+    logError(e.message, "renderHojas");
+    setContenido("contenido-hojas", `<div class="error-msg" style="margin-bottom:12px;">📡 ${e.message}</div>
+       <button class="btn btn-back" onclick="renderHojas()">↺ Reintentar</button>`);
+  }
+}
+
+async function seleccionarHoja(hoja) {
+  estado.hojaSeleccionada = hoja;
+  estado.paso = 3;
+  render();
+  const app = document.getElementById("app");
+  let cardTareas2 = document.getElementById("card-tareas");
+  if (!cardTareas2) {
+    cardTareas2 = document.createElement("div");
+    cardTareas2.className = "card";
+    cardTareas2.id = "card-tareas";
+    app.appendChild(cardTareas2);
+  }
+  cardTareas2.innerHTML = `<div class="loading">Cargando tareas...</div>`;
+  try {
+    const res = await getTareas(hoja.ordenPpal, hoja.ordenes);
+    if (!res.ok) throw new Error(res.error);
+    estado.tareas = res.tareas; estado.fechaInicio = res.fechaInicio || "";
+    estado.fechaFin = res.fechaFin || ""; estado.respuestas = {};
+    estado.mein = res.mein || "Pendiente";
+    renderFormularioTareas();
+  } catch (e) {
+    document.getElementById("card-tareas").innerHTML =
+      `<div class="error-msg">Error al cargar tareas: ${e.message}</div>`;
+  }
+}
+
+// ============================================================
+// Formulario de tareas
+// ============================================================
+function renderFormularioTareas() {
+  let card = document.getElementById("card-tareas");
+  if (!card) {
+    const div = document.createElement("div");
+    div.className = "card"; div.id = "card-tareas";
+    document.getElementById("app").appendChild(div);
+    card = div;
+  }
+  if (!estado.tareas || estado.tareas.length === 0) {
+    card.innerHTML = '<div class="error-msg">No se encontraron tareas para esta orden.</div>';
+    return;
+  }
+
+  // Insertar barra de progreso
+  const barraHtml = `
+    <div class="progreso-tareas" id="progreso-tareas-wrap">
+      <div class="progreso-tareas-header">
+        <span class="progreso-tareas-label">Progreso del formulario</span>
+        <span class="progreso-tareas-num" id="progreso-tareas-num">0 / ${estado.tareas.length}</span>
+      </div>
+      <div class="progreso-bar-wrap">
+        <div class="progreso-bar-fill" id="progreso-bar-fill" style="width:0%"></div>
+      </div>
+      <div class="progreso-tareas-estado" id="progreso-tareas-estado">Ninguna tarea completada aún</div>
+    </div>`;
+
+  const opciones = ["Realizado", "Requiere TOM", "No aplica", "En obra"];
+  const tiposConInforme = ["GAS", "AGUA", "ELECTRICA", "ELECTR"];
+  const tipoHoja = (estado.hojaSeleccionada.tipo || "").toUpperCase();
+  const hojaConInforme = tiposConInforme.some(t => tipoHoja.includes(t));
+
+  let html = barraHtml + `
+  <div style="background:#1a3a5c;color:white;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:0.75rem;opacity:0.8;">SAP N°</span>
+      <span style="font-size:0.75rem;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">MEPL &nbsp;|&nbsp; COMUNA 6</span>
+      <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${(estado.mes||"").toUpperCase()} ${ANIO}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-size:1.1rem;font-weight:700;">${esc(estado.hojaSeleccionada.ordenPpal)}</span>
+      <span style="font-size:0.8rem;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">
+        MEIN: ${esc(estado.mein || "Pendiente")}
+      </span>
+    </div>
+    <div style="font-size:0.85rem;opacity:0.9;margin-bottom:10px;">📍 ${esc(estado.domicilio)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.78rem;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
+      <div><span style="opacity:0.7;">Inicio ext.</span><br><strong>${esc(estado.fechaInicio)||"—"}</strong></div>
+      <div><span style="opacity:0.7;">Fin ext.</span><br><strong>${esc(estado.fechaFin)||"—"}</strong></div>
+    </div>
+  </div>
+  <div style="font-size:0.95rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;">${esc(estado.hojaSeleccionada.tipo)}</div>`;
+
+  estado.tareas.forEach((t, idx) => {
+    const key = `${t.orden}_${t.clave}`;
+    const mostrarInforme = hojaConInforme && idx === 0;
+    html += `
+      <div class="tarea-card">
+        <div class="tarea-header">
+          <span class="clave">${esc(t.clave)}</span>
+          <span class="texto">${esc(t.texto)}</span>
+        </div>
+        <div class="tarea-rutina">${formatearDescripcion(t.descripcion)}</div>
+        <div class="tarea-respuesta">
+          <label>Respuesta <span class="contador">${idx+1}/${estado.tareas.length}</span></label>
+          <div class="respuesta-opciones">
+            ${opciones.map(op => `<button class="opcion-btn" onclick="elegirOpcion('${key}','${op}',this)">${op}</button>`).join("")}
+            ${mostrarInforme ? `<button class="opcion-btn" onclick="elegirOpcion('${key}','se adjunta informe de consumo',this)" style="border-color:#1a6a8a;color:#1a6a8a;">📋 Se adjunta informe de consumo</button>` : ""}
+          </div>
+          <textarea id="txt_${key}" placeholder="Descripción de la tarea realizada (obligatorio)..."
+            onchange="actualizarRespuesta('${key}')"></textarea>
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="card" style="margin-top:8px;">
+      <h2>Observaciones</h2>
+      <textarea id="inp-observaciones" placeholder="Observaciones generales (opcional)..." style="min-height:70px;"
+        oninput="estado.observaciones=this.value"></textarea>
+    </div>
+    <div class="card" style="margin-top:8px;">
+      <h2>Datos del operario</h2>
+      <div class="firmante">
+        <div><label>Nombre del operario</label>
+          <input type="text" id="inp-operario" placeholder="Nombre y apellido" oninput="estado.operario=this.value"></div>
+        <div><label>Jefe de sitio</label>
+          <input type="text" id="inp-jefe" placeholder="Nombre y apellido" oninput="estado.jefe=this.value"></div>
+      </div>
+    </div>
+    <div id="error-envio"></div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-back" onclick="volver()">← Volver</button>
+      <button class="btn btn-success" onclick="enviarRespuestas()">Enviar respuestas ✓</button>
+    </div>`;
+
+  card.innerHTML = html;
+}
+
+function elegirOpcion(key, opcion, btn) {
+  btn.closest(".respuesta-opciones").querySelectorAll(".opcion-btn").forEach(b => {
+    b.classList.remove("selected","selected-na","selected-informe");
+  });
+  const esNA      = opcion === "No aplica" || opcion === "En obra";
+  const esInforme = opcion === "se adjunta informe de consumo";
+  if (esNA) btn.classList.add("selected-na");
+  else if (esInforme) btn.classList.add("selected-informe");
+  else btn.classList.add("selected");
+
+  const txt = document.getElementById(`txt_${key}`);
+  if (esNA) { txt.value = opcion.toLowerCase(); txt.style.opacity = "0.5"; }
+  else if (esInforme) { txt.value = "se adjunta informe de consumo"; txt.style.opacity = "0.6"; }
+  else {
+    if (["no aplica","en obra","se adjunta informe de consumo"].includes(txt.value)) txt.value = "";
+    txt.style.opacity = "1";
+  }
+  estado.respuestas[key] = { opcion, texto: txt.value };
+  guardarProgreso(); // autoguardar
+  actualizarProgreso();
+}
+
+function actualizarRespuesta(key) {
+  const txt = document.getElementById(`txt_${key}`).value;
+  if (!estado.respuestas[key]) estado.respuestas[key] = { opcion: "", texto: "" };
+  estado.respuestas[key].texto = txt;
+  guardarProgreso(); // autoguardar
+  actualizarProgreso();
+}
+
+async function enviarRespuestas() {
+  const errorDiv = document.getElementById("error-envio");
+  errorDiv.innerHTML = "";
+
+  const sinResponder = estado.tareas.filter(t => {
+    const key = `${t.orden}_${t.clave}`;
+    const r = estado.respuestas[key];
+    return !r || (!r.texto && !r.opcion);
+  });
+
+  if (sinResponder.length > 0) {
+    errorDiv.innerHTML = `<div class="error-msg">📋 Falta completar ${sinResponder.length} tarea(s): ${sinResponder.map(t=>t.clave).join(", ")}</div>`;
+    // Scroll a la primera tarea sin responder
+    const primeraFaltante = sinResponder[0];
+    const key = `${primeraFaltante.orden}_${primeraFaltante.clave}`;
+    const txtEl = document.getElementById("txt_" + key);
+    if (txtEl) {
+      const card = txtEl.closest(".tarea-card");
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Resaltar la card brevemente
+        card.style.transition = "box-shadow .3s";
+        card.style.boxShadow = "0 0 0 3px rgba(220,38,38,0.4)";
+        setTimeout(() => { card.style.boxShadow = ""; }, 2000);
+      }
+    }
+    return;
+  }
+  if (!estado.operario.trim()) {
+    errorDiv.innerHTML = `<div class="error-msg">Ingresá el nombre del operario.</div>`;
+    return;
+  }
+
+  const tareasPorMEIN = {};
+  estado.tareas.forEach(t => {
+    const key = `${t.orden}_${t.clave}`;
+    const r = estado.respuestas[key] || {};
+    const respTexto = r.texto || r.opcion || "no aplica";
+    if (!tareasPorMEIN[t.orden]) {
+      tareasPorMEIN[t.orden] = {
+        mein: t.orden, ordenRef: estado.hojaSeleccionada.ordenPpal,
+        domicilio: estado.domicilio, tipo: estado.hojaSeleccionada.tipo, respuestas: []
+      };
+    }
+    tareasPorMEIN[t.orden].respuestas.push(respTexto);
+  });
+
+  const tareas = Object.values(tareasPorMEIN).map(m => ({
+    mein: m.mein, ordenRef: m.ordenRef, domicilio: m.domicilio,
+    tipo: m.tipo, respuesta: m.respuestas.join("||"),
+    operario: estado.operario, jefe: estado.jefe,
+    observaciones: estado.observaciones || ""
+  }));
+
+  const btn = document.querySelector(".btn-success");
+  btn.disabled = true;
+  mostrarEnviando();
+
+  try {
+    const res = await apiPost({ tareas });
+    if (!res.ok) throw new Error(res.error);
+    limpiarProgreso();
+    mostrarExito(() => {
+      estado.paso = 4;
+      render();
+    });
+  } catch (e) {
+    logError(e.message, "enviar-respuestas");
+    logError(e.message, "enviarRespuestas");
+    ocultarEnviando();
+    errorDiv.innerHTML = `<div class="error-msg">📡 ${e.message}</div>`;
+    btn.disabled = false;
+  }
+}
+
+// ============================================================
+// Confirmación
+// ============================================================
+function renderConfirmacion() {
+  const app = document.getElementById("app");
+  app.innerHTML += `
+    <div class="card">
+      <div class="success-msg">
+        <h3>✅ Respuestas enviadas</h3>
+        <p>Las respuestas de <strong>${esc(estado.hojaSeleccionada.tipo)}</strong><br>
+        en <strong>${esc(estado.domicilio)}</strong><br>
+        fueron guardadas correctamente.</p>
+        <br>
+        <button class="btn btn-primary" onclick="reiniciar()">Completar otra hoja</button>
+      </div>
+    </div>`;
+}
+
+function reiniciar() {
+  if (estado.modo === "tipo") {
+    estado.paso = 2;
+    estado.hojaSeleccionada = null;
+    estado.tareas = []; estado.respuestas = {};
+    estado.operario = ""; estado.jefe = "";
+    estado.fechaInicio = ""; estado.fechaFin = "";
+    render();
+  } else {
+    const dom = estado.domicilio;
+    const mes = estado.mes;
+    const modo = estado.modo;
+    // Resetear estado completamente pero mantener domicilio y mes
+    estado = { paso: 2, modo: modo, tipoSeleccionado: "",
+               domicilio: dom, mes: mes, hojaSeleccionada: null,
+               tareas: [], respuestas: {}, operario: "", jefe: "",
+               fechaInicio: "", fechaFin: "", observaciones: "",
+               vista: "formulario" };
+    // Forzar recarga completa del paso 2 para que consulte Supabase de nuevo
+    const app = document.getElementById("app");
+    app.innerHTML = "";
+    render();
+  }
+}
+
+function volver() {
+  if (estado.vista === "admin") { estado.vista = "formulario"; estado.paso = 0; render(); return; }
+  if (estado.paso <= 1) { volverModo(); return; }
+  estado.paso = estado.paso - 1;
+  render();
+}
+
+// ── helpers ──────────────────────────────────────────────────
+function formatearDescripcion(texto) {
+  if (!texto) return "";
+  const norm = texto.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  const idx  = norm.indexOf("\n");
+  if (idx > 0) {
+    return `<strong style="display:block;margin-bottom:6px;">${esc(norm.slice(0,idx).trim())}</strong>${esc(norm.slice(idx+1).trim()).replace(/\n/g,"<br>")}`;
+  }
+  return esc(norm);
+}
+
+function esc(str) {
+  return String(str||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── inicio ───────────────────────────────────────────────────
+estado.paso = -2;
+render();
+</script>
+</body>
+
+</html>
