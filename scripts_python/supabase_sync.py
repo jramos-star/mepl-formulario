@@ -466,7 +466,7 @@ def sincronizar_meins_desde_sheet(service):
     """
     Lee el Sheet JUNIO 2026, busca filas donde col A != col B
     (MEIN corregida por mepl_corregir_meins.py), y actualiza
-    mein_creada en Supabase donde mein_creada = orden.
+    mein_creada en Supabase en un solo batch.
     """
     print("\nSincronizando MEINs corregidas del Sheet a Supabase...")
 
@@ -477,53 +477,70 @@ def sincronizar_meins_desde_sheet(service):
     ).execute()
     filas = result.get("values", [])[1:]  # saltar header
 
+    # Construir mapa orden → mein_correcta solo donde A != B
+    mapa_correcciones = {}
+    for row in filas:
+        mein_sheet  = row[0].strip() if len(row) > 0 and row[0] else ""
+        orden_sheet = row[1].strip() if len(row) > 1 and row[1] else ""
+        if not mein_sheet or not orden_sheet:
+            continue
+        if mein_sheet != orden_sheet:
+            mapa_correcciones[orden_sheet] = mein_sheet
+
+    if not mapa_correcciones:
+        print("  No hay MEINs para sincronizar.")
+        return
+
+    print(f"  {len(mapa_correcciones)} MEINs corregidas en Sheet, verificando Supabase...")
+
     headers = {
         "apikey": SUPABASE_KEY,
         "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json"
     }
 
+    # Traer de Supabase todas las meins_pendientes donde mein_creada = orden
+    # en una sola consulta con los órdenes del mapa
+    ordenes_lista = list(mapa_correcciones.keys())
+    # Consultar en batches de 100 para no superar límites de URL
     actualizadas = 0
-    for row in filas:
-        mein_sheet  = row[0].strip() if len(row) > 0 and row[0] else ""
-        orden_sheet = row[1].strip() if len(row) > 1 and row[1] else ""
-
-        if not mein_sheet or not orden_sheet:
-            continue
-
-        # Solo procesar donde col A != col B (MEIN fue corregida)
-        if mein_sheet == orden_sheet:
-            continue
-
-        # Buscar en meins_pendientes donde orden = orden_sheet Y mein_creada = orden
-        # (esos son los que quedaron igual y necesitan actualizarse)
+    batch_size = 100
+    for i in range(0, len(ordenes_lista), batch_size):
+        batch = ordenes_lista[i:i+batch_size]
+        ordenes_str = ",".join(batch)
         res = requests.get(
             f"{SUPABASE_URL}/rest/v1/meins_pendientes",
             headers=headers,
             params={
-                "orden":       f"eq.{orden_sheet}",
-                "mein_creada": f"eq.{orden_sheet}",  # mein = orden (igual, sin corregir)
-                "select":      "id,orden,mein_creada"
+                "orden":   f"in.({ordenes_str})",
+                "select":  "id,orden,mein_creada"
             }
         )
-
         if not res.ok:
+            print(f"  [ERROR] No se pudieron leer meins_pendientes: {res.text[:100]}")
             continue
 
         registros = res.json()
         for reg in registros:
-            # Actualizar mein_creada con el valor correcto del Sheet
+            orden = str(reg.get("orden", ""))
+            mein_actual = str(reg.get("mein_creada", ""))
+            mein_correcta = mapa_correcciones.get(orden, "")
+
+            # Solo actualizar si mein_creada = orden (sin corregir)
+            if not mein_correcta or mein_actual != orden:
+                continue
+
             patch = requests.patch(
                 f"{SUPABASE_URL}/rest/v1/meins_pendientes",
                 headers={**headers, "Prefer": "return=minimal"},
                 params={"id": f"eq.{reg['id']}"},
-                json={"mein_creada": mein_sheet}
+                json={"mein_creada": mein_correcta}
             )
             if patch.ok:
-                print(f"  [MEIN ACTUALIZADA] Orden {orden_sheet} → MEIN {mein_sheet}")
+                print(f"  [MEIN ACTUALIZADA] Orden {orden} → MEIN {mein_correcta}")
                 actualizadas += 1
             else:
-                print(f"  [ERROR] Orden {orden_sheet}: {patch.text[:100]}")
+                print(f"  [ERROR] Orden {orden}: {patch.text[:100]}")
 
     if actualizadas == 0:
         print("  No hay MEINs para sincronizar.")
