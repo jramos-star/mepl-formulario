@@ -2121,25 +2121,44 @@ function renderFormularioTareas() {
   const hojaConInforme = tiposConInforme.some(t => tipoHoja.includes(t));
 
   let html = barraHtml + `
-  <div style="background:#1a3a5c;color:white;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <span style="font-size:0.75rem;opacity:0.8;">SAP N°</span>
-      <span style="font-size:0.75rem;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">MEPL &nbsp;|&nbsp; COMUNA 6</span>
-      <span style="font-size:0.75rem;font-weight:700;background:#e8a020;color:#1a1a1a;padding:2px 10px;border-radius:20px;">${(estado.mes||"").toUpperCase()} ${ANIO}</span>
+  <div class="card-establecimiento">
+    <div class="ce-top">
+      <span class="ce-badge-mepl">MEPL &nbsp;|&nbsp; COMUNA 6</span>
+      <span class="ce-badge-mes">${(estado.mes||"").toUpperCase()} ${ANIO}</span>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <span style="font-size:1.1rem;font-weight:700;">${esc(estado.hojaSeleccionada.ordenPpal)}</span>
-      <span style="font-size:0.8rem;background:rgba(255,255,255,0.15);padding:2px 10px;border-radius:20px;">
-        MEIN: ${esc(estado.mein || "Pendiente")}
-      </span>
+    <div class="ce-nums">
+      <div class="ce-num-item">
+        <div class="ce-num-label">SAP N°</div>
+        <div class="ce-num-val">${esc(estado.hojaSeleccionada.ordenPpal)}</div>
+      </div>
+      <div class="ce-divider"></div>
+      <div class="ce-num-item">
+        <div class="ce-num-label">MEIN</div>
+        <div class="ce-num-val">${esc(estado.mein || "Pendiente")}</div>
+      </div>
     </div>
-    <div style="font-size:0.85rem;opacity:0.9;margin-bottom:10px;">📍 ${esc(estado.domicilio)}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.78rem;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-      <div><span style="opacity:0.7;">Inicio ext.</span><br><strong>${esc(estado.fechaInicio)||"—"}</strong></div>
-      <div><span style="opacity:0.7;">Fin ext.</span><br><strong>${esc(estado.fechaFin)||"—"}</strong></div>
+    <div class="ce-dir-wrap">
+      <div class="ce-icon-wrap">📍</div>
+      <div>
+        <div class="ce-eyebrow">Establecimiento</div>
+        <div class="ce-domicilio">${esc(estado.domicilio)}</div>
+        <div class="ce-ciudad">Ciudad Autónoma de Buenos Aires</div>
+      </div>
+    </div>
+    <div class="ce-sep"></div>
+    <div class="ce-fecha-wrap">
+      <div class="ce-icon-wrap">📅</div>
+      <div>
+        <div class="ce-fecha-label">Período de tarea</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="ce-fecha-val">${esc(estado.fechaInicio)||"—"}</span>
+          <span class="ce-fecha-arrow">→</span>
+          <span class="ce-fecha-val">${esc(estado.fechaFin)||"—"}</span>
+        </div>
+      </div>
     </div>
   </div>
-  <div style="font-size:0.95rem;font-weight:700;color:#1a3a5c;margin-bottom:14px;">${esc(estado.hojaSeleccionada.tipo)}</div>`;
+  <div class="tipo-seccion">${esc(estado.hojaSeleccionada.tipo)}</div>`;
 
   estado.tareas.forEach((t, idx) => {
     const key = `${t.orden}_${t.clave}`;
