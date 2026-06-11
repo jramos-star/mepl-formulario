@@ -47,14 +47,14 @@
   /* Centro del header — info de orden */
   .header-center-orden{padding:10px 0}
   .header-mes-row{text-align:center;margin-bottom:3px}
-  #header-mes{font-size:1.15rem;font-weight:700;color:#fff;font-family:var(--font);letter-spacing:.01em}
+  #header-mes{font-size:1.3rem;font-weight:700;color:#fff;font-family:var(--font);letter-spacing:.01em}
   .header-tags-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
-  .header-tag{font-size:.72rem;font-weight:600;color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:var(--r-full);border:1px solid rgba(255,255,255,0.2)}
+  .header-tag{font-size:.74rem;font-weight:600;color:rgba(255,255,255,0.95);background:rgba(255,255,255,0.12);padding:4px 14px;border-radius:var(--r-full);border:1px solid rgba(255,255,255,0.2);letter-spacing:.03em}
   .header-tag-sep{color:rgba(255,255,255,0.4);font-size:.72rem}
   .header-nums-row{display:flex;align-items:center;justify-content:center;gap:20px}
   .header-num-block{display:flex;flex-direction:column;align-items:center;gap:2px}
   .header-num-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,0.5)}
-  .header-num-val{font-size:1.3rem;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:.02em;line-height:1}
+  .header-num-val{font-size:1.5rem;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:.02em;line-height:1}
   .header-num-divider{width:1px;height:36px;background:rgba(255,255,255,0.2)}
   /* Botones header */
   .header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -124,32 +124,31 @@
   .intro-title{font-size:1.4rem;font-weight:700;margin-bottom:4px}
   .intro-sub{font-size:.85rem;color:rgba(255,255,255,0.7)}
 
-  /* ── CARD ESTABLECIMIENTO (generada por JS con clase .card-establecimiento) ── */
+  /* ── CARD ESTABLECIMIENTO ── */
   .card-establecimiento{
-    background:linear-gradient(160deg,var(--brand-dark) 0%,var(--brand) 65%,#1a5bb5 100%);
-    border-radius:var(--r-xl);padding:20px;margin-bottom:14px;color:#fff;
+    background:linear-gradient(180deg,#0d3b78 0%,#1a4f9e 100%);
+    border-radius:var(--r-xl);padding:18px 20px 20px;margin-bottom:14px;color:#fff;
     box-shadow:0 6px 24px rgba(7,30,64,0.35);position:relative;overflow:hidden;
   }
-  .card-establecimiento::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.05)}
-  .ce-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-  .ce-badge-mepl{font-size:.7rem;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:3px 12px;border-radius:var(--r-full);border:1px solid rgba(255,255,255,0.2);font-family:var(--mono)}
-  .ce-badge-mes{font-size:.7rem;font-weight:700;background:var(--accent);color:#1a1a1a;padding:3px 10px;border-radius:var(--r-full);font-family:var(--mono)}
-  .ce-sap{font-size:.7rem;color:rgba(255,255,255,0.55);margin-bottom:2px}
-  .ce-nums{display:flex;align-items:center;gap:16px;margin-bottom:14px}
-  .ce-num-item{}
-  .ce-num-val{font-size:1.5rem;font-weight:700;font-family:var(--mono);line-height:1}
-  .ce-num-label{font-size:.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
-  .ce-divider{width:1px;height:40px;background:rgba(255,255,255,0.2)}
-  .ce-dir-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-  .ce-icon-wrap{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
-  .ce-eyebrow{font-size:.68rem;color:rgba(255,255,255,0.55);margin-bottom:3px}
-  .ce-domicilio{font-size:1.15rem;font-weight:700;line-height:1.2}
-  .ce-ciudad{font-size:.82rem;color:rgba(255,255,255,0.7);margin-top:2px}
-  .ce-sep{height:1px;background:rgba(255,255,255,0.15);margin:14px 0}
-  .ce-fecha-wrap{display:flex;align-items:center;gap:12px}
-  .ce-fecha-label{font-size:.68rem;color:rgba(255,255,255,0.55);margin-bottom:3px}
-  .ce-fecha-val{font-size:.95rem;font-weight:700;font-family:var(--mono)}
-  .ce-fecha-arrow{color:rgba(255,255,255,0.5);font-size:1.1rem;margin:0 4px}
+  .card-establecimiento::after{content:'';position:absolute;bottom:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.04)}
+  .ce-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .ce-badge-mepl{font-size:.72rem;font-weight:700;background:rgba(255,255,255,0.18);color:#fff;padding:4px 12px;border-radius:var(--r-full);border:1px solid rgba(255,255,255,0.25);letter-spacing:.03em}
+  .ce-badge-mes{font-size:.72rem;font-weight:700;background:var(--accent);color:#1a1a1a;padding:4px 12px;border-radius:var(--r-full);letter-spacing:.03em}
+  .ce-nums{display:flex;align-items:center;gap:20px;margin-bottom:18px}
+  .ce-num-item{display:flex;flex-direction:column;gap:3px}
+  .ce-num-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,0.5)}
+  .ce-num-val{font-size:1.6rem;font-weight:700;font-family:var(--mono);line-height:1;letter-spacing:.01em}
+  .ce-divider{width:1px;height:44px;background:rgba(255,255,255,0.2);flex-shrink:0}
+  .ce-dir-wrap{display:flex;align-items:flex-start;gap:14px;margin-bottom:0}
+  .ce-icon-wrap{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.15rem;border:1px solid rgba(255,255,255,0.15)}
+  .ce-eyebrow{font-size:.68rem;color:rgba(255,255,255,0.55);margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em}
+  .ce-domicilio{font-size:1.2rem;font-weight:700;line-height:1.25;letter-spacing:.01em}
+  .ce-ciudad{font-size:.82rem;color:rgba(255,255,255,0.65);margin-top:4px}
+  .ce-sep{height:1px;background:rgba(255,255,255,0.15);margin:16px 0}
+  .ce-fecha-wrap{display:flex;align-items:flex-start;gap:14px}
+  .ce-fecha-label{font-size:.68rem;color:rgba(255,255,255,0.55);margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em}
+  .ce-fecha-val{font-size:1rem;font-weight:700;font-family:var(--mono)}
+  .ce-fecha-arrow{color:rgba(255,255,255,0.6);font-size:1rem;margin:0 6px}
 
   /* ── SECCIÓN TIPO ── */
   .tipo-seccion{font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);background:var(--brand-xlight);border:1.5px solid var(--brand-light);padding:8px 16px;border-radius:var(--r-full);margin-bottom:16px;display:inline-flex;align-items:center;gap:6px}
@@ -2183,21 +2182,6 @@ function renderFormularioTareas() {
 
   let html = barraHtml + `
   <div class="card-establecimiento">
-    <div class="ce-top">
-      <span class="ce-badge-mepl">MEPL &nbsp;|&nbsp; COMUNA 6</span>
-      <span class="ce-badge-mes">${(estado.mes||"").toUpperCase()} ${ANIO}</span>
-    </div>
-    <div class="ce-nums">
-      <div class="ce-num-item">
-        <div class="ce-num-label">SAP N°</div>
-        <div class="ce-num-val">${esc(estado.hojaSeleccionada.ordenPpal)}</div>
-      </div>
-      <div class="ce-divider"></div>
-      <div class="ce-num-item">
-        <div class="ce-num-label">MEIN</div>
-        <div class="ce-num-val">${esc(estado.mein || "Pendiente")}</div>
-      </div>
-    </div>
     <div class="ce-dir-wrap">
       <div class="ce-icon-wrap">📍</div>
       <div>
@@ -2221,6 +2205,7 @@ function renderFormularioTareas() {
   </div>
   <div class="tipo-seccion">${esc(estado.hojaSeleccionada.tipo)}</div>`;
 
+  
   estado.tareas.forEach((t, idx) => {
     const key = `${t.orden}_${t.clave}`;
     const mostrarInforme = hojaConInforme && idx === 0;
