@@ -16,8 +16,8 @@
       --ac:#6366f1; --ac-2:#818cf8; --ac-hi:#a5b4fc; --ac-glow:rgba(99,102,241,.35);
       --ok:#10b981; --ok-2:#34d399; --bad:#f43f5e; --warn:#f59e0b;
       --bg:#f7f8fa; --bg-2:#eef0f4; --panel:#ffffff; --panel-2:#fbfcfe;
-      --side:#0f1117; --side-2:#161922; --side-line:rgba(255,255,255,.07);
-      --side-fg:#e7e9ef; --side-dim:#8b90a0;
+      --side:#ffffff; --side-2:#f7f8fa; --side-line:#e5e8ee;
+      --side-fg:#11131a; --side-dim:#939aa8;
       --line:#e5e8ee; --line-2:#d4d9e2;
       --fg:#11131a; --sub:#5b6473; --dim:#939aa8;
       --field:#ffffff; --field-line:#d9dee7; --code-bg:#f1f3f7;
@@ -31,21 +31,7 @@
       --t1:130ms cubic-bezier(.4,0,.2,1); --t2:240ms cubic-bezier(.4,0,.2,1);
       --sidew:268px;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:#0b0d12; --bg-2:#0f1117; --panel:#14171f; --panel-2:#181c25;
-        --side:#0a0c11; --side-2:#11141b; --side-line:rgba(255,255,255,.06);
-        --side-fg:#e7e9ef; --side-dim:#7f859a;
-        --line:#232734; --line-2:#2d3340;
-        --fg:#eceef4; --sub:#a2a9ba; --dim:#6b7282;
-        --field:#1a1e28; --field-line:#2d3340; --code-bg:#1a1e28;
-        --ac:#818cf8; --ac-2:#a5b4fc;
-        --e1:0 1px 2px rgba(0,0,0,.3);
-        --e2:0 2px 8px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.3);
-        --e3:0 8px 30px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.35);
-        --e4:0 20px 60px rgba(0,0,0,.65),0 6px 16px rgba(0,0,0,.45);
-      }
-    }
+    
     @media (prefers-reduced-motion: reduce) {
       *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
     }
@@ -60,17 +46,17 @@
     .sidebar { width:var(--sidew); flex-shrink:0; position:fixed; top:0; bottom:0; left:0; z-index:100; background:linear-gradient(180deg, var(--side) 0%, var(--side-2) 100%); border-right:1px solid var(--side-line); display:flex; flex-direction:column; color:var(--side-fg); }
     .sb-brand { display:flex; align-items:center; gap:11px; padding:20px 20px 18px; border-bottom:1px solid var(--side-line); }
     .sb-logo { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:linear-gradient(135deg, var(--ac), var(--ac-2)); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:.82rem; color:#fff; box-shadow:0 4px 14px var(--ac-glow), 0 1px 0 rgba(255,255,255,.25) inset; }
-    .sb-brand-name { font-size:.92rem; font-weight:700; letter-spacing:-.01em; color:#fff; line-height:1.1; }
+    .sb-brand-name { font-size:.92rem; font-weight:700; letter-spacing:-.01em; color:var(--fg); line-height:1.1; }
     .sb-brand-sub { font-size:.7rem; color:var(--side-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .sb-orden { margin:14px; padding:14px; border-radius:var(--r3); display:none; background:linear-gradient(160deg, rgba(99,102,241,.16), rgba(99,102,241,.04)); border:1px solid rgba(129,140,248,.22); position:relative; overflow:hidden; }
     .sb-orden::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--ac), var(--ac-2)); }
     .sb-orden-mes { font-size:.72rem; font-weight:700; color:var(--ac-hi); letter-spacing:.04em; margin-bottom:10px; }
     .sb-orden-tags { display:flex; gap:6px; margin-bottom:12px; }
-    .sb-orden-tag { font-size:.6rem; font-weight:700; letter-spacing:.04em; color:var(--side-fg); background:rgba(255,255,255,.08); padding:2px 8px; border-radius:var(--rf); border:1px solid rgba(255,255,255,.1); }
+    .sb-orden-tag { font-size:.6rem; font-weight:700; letter-spacing:.04em; color:var(--sub); background:var(--bg-2); padding:2px 8px; border-radius:var(--rf); border:1px solid var(--line); }
     .sb-orden-num { margin-bottom:9px; }
     .sb-orden-num:last-child { margin-bottom:0; }
     .sb-orden-k { font-size:.56rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--side-dim); margin-bottom:2px; }
-    .sb-orden-v { font-family:var(--mono); font-size:1.05rem; font-weight:600; color:#fff; line-height:1; }
+    .sb-orden-v { font-family:var(--mono); font-size:1.05rem; font-weight:600; color:var(--fg); line-height:1; }
     .sb-steps { padding:8px 14px; display:none; flex-direction:column; gap:2px; position:relative; }
     .sb-steps-line { position:absolute; left:28px; top:24px; bottom:24px; width:1.5px; background:var(--side-line); }
     .sb-step { display:flex; align-items:center; gap:12px; padding:9px 8px; border-radius:var(--r1); position:relative; z-index:1; }
@@ -85,8 +71,8 @@
     .sb-foot-row { display:flex; align-items:center; gap:9px; font-size:.74rem; color:var(--side-dim); }
     .sb-foot-dot { width:7px; height:7px; border-radius:50%; background:var(--ok); box-shadow:0 0 8px var(--ok); flex-shrink:0; }
     .sb-actions { display:none; gap:8px; }
-    .sb-btn { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; border-radius:var(--r1); cursor:pointer; font-family:var(--sans); font-size:.8rem; font-weight:600; background:rgba(255,255,255,.06); border:1px solid var(--side-line); color:var(--side-fg); transition:all var(--t1); }
-    .sb-btn:hover { background:rgba(255,255,255,.12); }
+    .sb-btn { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; border-radius:var(--r1); cursor:pointer; font-family:var(--sans); font-size:.8rem; font-weight:600; background:var(--bg-2); border:1px solid var(--line); color:var(--sub); transition:all var(--t1); }
+    .sb-btn:hover { background:var(--line); }
     .sb-btn:active { transform:scale(.97); }
 
     /* ── MAIN ── */
@@ -365,18 +351,18 @@
     @media (max-width:900px) {
       .sidebar { display:none; }
       .main { margin-left:0; }
-      .topbar { display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:100; background:linear-gradient(180deg, var(--side), var(--side-2)); border-bottom:1px solid var(--side-line); padding:0 16px; min-height:58px; color:var(--side-fg); }
+      .topbar { display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:100; background:var(--panel); border-bottom:1px solid var(--line); padding:0 16px; min-height:58px; color:var(--fg); }
       .topbar::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--ac), var(--ac-2)); }
-      .tb-back { display:none; align-items:center; gap:6px; background:transparent; border:none; color:var(--side-fg); font-family:var(--sans); font-size:1.1rem; font-weight:600; cursor:pointer; padding:8px 4px; flex-shrink:0; }
+      .tb-back { display:none; align-items:center; gap:6px; background:transparent; border:none; color:var(--sub); font-family:var(--sans); font-size:1.1rem; font-weight:600; cursor:pointer; padding:8px 4px; flex-shrink:0; }
       .tb-center { flex:1; display:flex; align-items:center; gap:10px; min-width:0; }
       .tb-logo { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--ac),var(--ac-2)); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:.72rem; color:#fff; flex-shrink:0; }
-      .tb-logo-txt { font-size:.85rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .tb-logo-txt { font-size:.85rem; font-weight:700; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
       .tb-orden { flex:1; display:none; flex-direction:column; gap:3px; min-width:0; }
-      .tb-orden-mes { font-size:.9rem; font-weight:700; color:#fff; line-height:1; }
+      .tb-orden-mes { font-size:.9rem; font-weight:700; color:var(--fg); line-height:1; }
       .tb-orden-nums { display:flex; gap:14px; }
       .tb-orden-num { font-size:.66rem; color:var(--side-dim); }
-      .tb-orden-num b { font-family:var(--mono); color:var(--side-fg); font-weight:600; margin-left:4px; }
-      .tb-action { width:36px; height:36px; border-radius:9px; background:rgba(255,255,255,.1); border:1px solid var(--side-line); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:.95rem; }
+      .tb-orden-num b { font-family:var(--mono); color:var(--fg); font-weight:600; margin-left:4px; }
+      .tb-action { width:36px; height:36px; border-radius:9px; background:var(--bg-2); border:1px solid var(--line); color:var(--sub); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:.95rem; }
       .container { padding:18px 14px 80px; }
       .paso-indicator, .progress-wrap { display:flex; }
     }
