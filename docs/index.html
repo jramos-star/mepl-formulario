@@ -165,10 +165,10 @@
     .modo-icono { font-size:1.7rem; }
     .modo-titulo { font-size:.95rem; font-weight:700; color:var(--fg); letter-spacing:-.01em; }
     .modo-desc { font-size:.78rem; color:var(--sub); line-height:1.45; }
-    .tipos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-bottom:18px; }
-    .tipo-card { display:flex; align-items:center; gap:8px; padding:12px 14px; border:1.5px solid var(--line); border-radius:var(--r1); cursor:pointer; font-size:.84rem; font-weight:600; color:var(--sub); background:var(--panel); transition:all var(--t1); }
+    .tipos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:10px; margin-bottom:18px; align-items:stretch; }
+    .tipo-card { display:flex; align-items:center; gap:10px; padding:13px 14px; min-height:62px; border:1.5px solid var(--line); border-radius:var(--r2); cursor:pointer; font-size:.8rem; font-weight:600; line-height:1.28; color:var(--fg); background:var(--panel); transition:all var(--t1); box-shadow:var(--e1); }
     .tipo-card:hover { border-color:var(--ac); color:var(--ac); transform:translateY(-1px); box-shadow:var(--e2); }
-    .tipo-icono { font-size:1.15rem; flex-shrink:0; }
+    .tipo-icono { font-size:1.2rem; flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--bg-2); border-radius:9px; }
 
     /* ══ BUSCAR ══ */
     .buscar-wrap, .buscar-colegio-wrap { position:relative; margin-bottom:14px; }
@@ -412,7 +412,7 @@
       <div class="sb-logo">MP</div>
       <div class="sb-brand-txt">
         <div class="sb-brand-name">MEPL</div>
-        <div class="sb-brand-sub">Indaltec SA · Comuna 6</div>
+        <div class="sb-brand-sub">Mantenimiento · Comuna 6</div>
       </div>
     </div>
     <div class="sb-orden" id="sb-orden">
@@ -1701,7 +1701,7 @@ function renderBienvenida() {
     <div class="bienvenida-hero">
       <div class="bienvenida-logo">
         <span class="bienvenida-logo-badge">MEPL</span>
-        <span class="bienvenida-logo-empresa">Indaltec SA</span>
+        <span class="bienvenida-logo-empresa">Sistema de Mantenimiento</span>
       </div>
       <div class="bienvenida-titulo">Sistema de Gestión de<br>Mantenimiento Escolar</div>
       <div class="bienvenida-sub">
