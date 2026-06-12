@@ -800,7 +800,7 @@ function actualizarProgreso() {
       est.textContent = "Ninguna tarea completada aún";
     } else if (completadas === total) {
       est.textContent = "✓ Todas las tareas completadas — podés enviar";
-      est.style.color = "var(--success)";
+      est.style.color = "var(--ok)";
       est.style.fontWeight = "600";
     } else {
       est.textContent = (total - completadas) + " tarea(s) pendiente(s)";
@@ -863,7 +863,7 @@ function mostrarExito(callback) {
   if (!overlay) { if (callback) callback(); return; }
   overlay.querySelector(".enviando-card").innerHTML = `
     <div class="enviando-exito-icon">✓</div>
-    <div class="enviando-titulo" style="color:var(--success)">¡Enviado con éxito!</div>
+    <div class="enviando-titulo" style="color:var(--ok)">¡Enviado con éxito!</div>
     <div class="enviando-sub">Las respuestas fueron guardadas correctamente.</div>`;
   setTimeout(() => {
     overlay.remove();
@@ -1020,24 +1020,26 @@ function actualizarHeaderOrden(sap, mein) {
   const tbLogo = document.getElementById("tb-logo");
   const tbOrden = document.getElementById("tb-orden");
   const tbBack = document.getElementById("tb-back");
+  // Botones de navegación y pasos: visibles siempre que estemos navegando (paso >= 1)
+  const navegando = estado.paso >= 1 && estado.vista !== "admin";
+  if (sbA) sbA.style.display = navegando ? "flex" : "none";
+  if (sbSteps) sbSteps.style.display = navegando ? "flex" : "none";
+  if (tbBack) tbBack.style.display = navegando ? "inline-flex" : "none";
+
   if (sap) {
     if (sbO) { sbO.style.display = "block";
       const s=document.getElementById("sb-sap"); if(s)s.textContent=sap;
       const m=document.getElementById("sb-mein"); if(m)m.textContent=mein||"Pendiente";
       const mes=document.getElementById("sb-mes"); if(mes)mes.textContent=(estado.mes||"").toUpperCase()+" "+ANIO; }
-    if (sbA) sbA.style.display = "flex";
-    if (sbSteps) sbSteps.style.display = "flex";
     if (tbLogo) tbLogo.style.display = "none";
     if (tbOrden) { tbOrden.style.display = "flex";
       const ts=document.getElementById("tb-sap"); if(ts)ts.textContent=sap;
       const tm=document.getElementById("tb-mein"); if(tm)tm.textContent=mein||"Pendiente";
       const tmes=document.getElementById("tb-mes"); if(tmes)tmes.textContent=(estado.mes||"").toUpperCase()+" "+ANIO; }
-    if (tbBack) tbBack.style.display = "inline-flex";
   } else {
     if (sbO) sbO.style.display = "none";
     if (tbLogo) tbLogo.style.display = "flex";
     if (tbOrden) tbOrden.style.display = "none";
-    if (tbBack) tbBack.style.display = "none";
   }
 }
 
@@ -1068,9 +1070,9 @@ function render() {
   if (btnInicio) btnInicio.style.display = "inline-flex";
   if (btnVolver) btnVolver.style.display = "inline-flex";
 
-  if (estado.paso === -2) { app.innerHTML = ""; renderBienvenida(); return; }
-  if (estado.paso === -1) { app.innerHTML = ""; renderSelectorMes(); return; }
-  if (estado.paso === 0)  { app.innerHTML = ""; renderModo(); return; }
+  if (estado.paso === -2) { app.innerHTML = ""; actualizarHeaderOrden(null, null); renderBienvenida(); return; }
+  if (estado.paso === -1) { app.innerHTML = ""; actualizarHeaderOrden(null, null); renderSelectorMes(); return; }
+  if (estado.paso === 0)  { app.innerHTML = ""; actualizarHeaderOrden(null, null); renderModo(); return; }
 
   const pasos = estado.modo === "tipo"
     ? ["Tipo", "Colegio", "Respuestas", "Confirmación"]
@@ -1085,6 +1087,14 @@ function render() {
   html += `</div>`;
   app.innerHTML = html;
   pintarSidebarSteps(pasos);
+
+  // Mostrar la tarjeta de orden (SAP/MEIN) SOLO en el paso de respuestas con datos cargados.
+  // En cualquier otro paso se oculta para que no quede pegada al volver atrás.
+  if (estado.paso === 3 && estado.hojaSeleccionada && estado.tareas && estado.tareas.length > 0) {
+    actualizarHeaderOrden(estado.hojaSeleccionada.ordenPpal, estado.mein || null);
+  } else {
+    actualizarHeaderOrden(null, null);
+  }
 
   if (estado.modo === "tipo") {
     if      (estado.paso === 1) renderTipos();
@@ -1344,11 +1354,11 @@ async function cargarAdmin() {
 
     if (statsEl) statsEl.innerHTML = `
       <div class="admin-stat-card"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">Total colegios</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--success)">${conMein}</div><div class="admin-stat-label">Completos</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--ok)">${conMein}</div><div class="admin-stat-label">Completos</div></div>
       <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--warn)">${sinMein}</div><div class="admin-stat-label">Sin MEIN</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--brand)">${encoladas}</div><div class="admin-stat-label">En cola</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--ac)">${encoladas}</div><div class="admin-stat-label">En cola</div></div>
       <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--warn)">${parciales}</div><div class="admin-stat-label">Parciales</div></div>
-      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--danger)">${conError}</div><div class="admin-stat-label">Con error</div></div>`;
+      <div class="admin-stat-card"><div class="admin-stat-num" style="color:var(--bad)">${conError}</div><div class="admin-stat-label">Con error</div></div>`;
 
     if (filtrosEl) filtrosEl.innerHTML = `
       <span style="font-size:0.82rem;color:#666;">Filtrar:</span>
@@ -1521,7 +1531,7 @@ async function cancelarMeinSilencioso(ordenes) {
 }
 
 async function encolarTodos() {
-  const sinMein = adminDatos.filter(c => !c.tieneMein && !c.estadoCola);
+  const sinMein = adminDatos.filter(c => c.estadoGeneral === "sin-mein");
   if (sinMein.length === 0) {
     showToast("No hay colegios sin MEIN para encolar", "");
     return;
@@ -2415,6 +2425,13 @@ function reiniciar() {
 function volver() {
   if (estado.vista === "admin") { estado.vista = "formulario"; estado.paso = 0; render(); return; }
   if (estado.paso <= 1) { volverModo(); return; }
+  // Si volvemos desde el paso de respuestas, limpiar datos de la hoja
+  // para que no queden residuales (SAP/MEIN, tareas) en la próxima entrada.
+  if (estado.paso === 3) {
+    estado.tareas = [];
+    estado.respuestas = {};
+    estado.mein = "";
+  }
   estado.paso = estado.paso - 1;
   render();
 }
