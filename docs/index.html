@@ -1021,7 +1021,7 @@ function actualizarHeaderOrden(sap, mein) {
   const tbOrden = document.getElementById("tb-orden");
   const tbBack = document.getElementById("tb-back");
   // Botones de navegación y pasos: visibles siempre que estemos navegando (paso >= 1)
-  const navegando = estado.paso >= 1 && estado.vista !== "admin";
+  const navegando = estado.paso >= 0 && estado.vista !== "admin";
   if (sbA) sbA.style.display = navegando ? "flex" : "none";
   if (sbSteps) sbSteps.style.display = navegando ? "flex" : "none";
   if (tbBack) tbBack.style.display = navegando ? "inline-flex" : "none";
