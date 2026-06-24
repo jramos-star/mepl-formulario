@@ -1225,8 +1225,7 @@ async function renderAdmin() {
   // Cargar meses disponibles dinámicamente
   let opcionesMeses = `<option value="">Cargando...</option>`;
   try {
-    const dataMeses = await sbGet("colegios_hojas", { select: "mes" });
-    const mesesDisp = [...new Set(dataMeses.map(r => r.mes).filter(Boolean))];
+    const mesesDisp = await sbGet("colegios_hojas", { action: "meses_unicos" });
     const orden = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
                    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
     mesesDisp.sort((a, b) => orden.indexOf(a) - orden.indexOf(b));
@@ -1768,9 +1767,8 @@ async function renderSelectorMes() {
   if (progresoGuardado) mostrarBannerProgreso(progresoGuardado, app);
 
   try {
-    // Traer meses distintos desde Supabase
-    const data = await sbGet("colegios_hojas", { select: "mes" });
-    const meses = [...new Set(data.map(r => r.mes).filter(Boolean))];
+    // Traer meses distintos desde Supabase (endpoint especial para evitar límite de 1000 filas)
+    const meses = await sbGet("colegios_hojas", { action: "meses_unicos" });
 
     // Orden cronológico
     const orden = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
